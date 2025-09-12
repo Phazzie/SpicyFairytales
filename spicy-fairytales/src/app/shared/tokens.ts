@@ -1,3 +1,11 @@
+/**
+ * ## Architecture Context
+ * Dependency injection tokens for service contracts and strategy interfaces.
+ *
+ * This file centralizes all DI tokens used throughout the application, ensuring
+ * consistent token naming and type safety for service injection.
+ */
+
 import { InjectionToken } from '@angular/core'
 import type { SpeakerParser, StoryService, VoiceService } from './contracts'
 

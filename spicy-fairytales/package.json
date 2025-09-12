@@ -9,6 +9,8 @@
     "test": "cross-env CHROME_BIN=$(node -e \"console.log(require('puppeteer').executablePath())\") ng test",
     "validate": "node validate-env.js",
     "test-apis": "node test-apis.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "serve:ssr:spicy-fairytales": "node dist/spicy-fairytales/server/server.mjs"
   },
   "prettier": {

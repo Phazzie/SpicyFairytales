@@ -43,6 +43,7 @@ export class AudioPlayerComponent implements OnDestroy {
   private buffers: AudioBuffer[] = []
   private source?: AudioBufferSourceNode
   private subscription?: { unsubscribe: () => void }
+  private timers: number[] = []
 
   constructor(
     private stories: StoryStore,
@@ -80,25 +81,36 @@ export class AudioPlayerComponent implements OnDestroy {
 
     // Subscribe to synthesis stream
     this.subscription?.unsubscribe()
-    this.subscription = this.voice.synthesize(this.stories.parsed()!, assignments).subscribe({
-      next: async (chunk) => {
-        this.segments.update((arr) => [...arr, chunk.text ?? `Segment ${arr.length + 1}`])
-        const buf = await this.decodeOrSilence(chunk.audio)
-        this.buffers.push(buf)
-      },
-      error: (e) => {
-        this.status.set('Synthesis failed')
-        this.generating.set(false)
-      },
-      complete: () => {
-        this.status.set(`Ready: ${this.buffers.length} segments`)
-        this.generating.set(false)
-      },
-    })
+    try {
+      this.subscription = this.voice.synthesize(this.stories.parsed()!, assignments).subscribe({
+        next: async (chunk) => {
+          this.segments.update((arr) => [...arr, chunk.text ?? `Segment ${arr.length + 1}`])
+          const buf = await this.decodeOrSilence(chunk.audio)
+          this.buffers.push(buf)
+        },
+        error: (e) => {
+          this.status.set(`Synthesis failed${e?.message ? `: ${e.message}` : ''}`)
+          this.generating.set(false)
+        },
+        complete: () => {
+          this.status.set(`Ready: ${this.buffers.length} segments`)
+          this.generating.set(false)
+        },
+      })
+    } catch (e: any) {
+      this.status.set(`Synthesis failed${e?.message ? `: ${e.message}` : ''}`)
+      this.generating.set(false)
+    }
   }
 
   private async decodeOrSilence(data: ArrayBuffer): Promise<AudioBuffer> {
-    if (!this.ac) this.ac = new AudioContext()
+    if (!this.ac) {
+      const Ctor = (window as any).AudioContext || (window as any).webkitAudioContext
+      this.ac = new Ctor()
+    }
+    if (!this.ac) {
+      throw new Error('AudioContext not available')
+    }
     try {
       if (data && data.byteLength > 0) {
         return await this.ac.decodeAudioData(data.slice(0))
@@ -111,25 +123,31 @@ export class AudioPlayerComponent implements OnDestroy {
   }
 
   play() {
-    if (!this.ac || this.buffers.length === 0) return
-    this.stop()
+    if (this.buffers.length === 0) return
+    const Ctor = (window as any).AudioContext || (window as any).webkitAudioContext
+    this.ac = this.ac ?? new Ctor()
+    if (this.ac && this.ac.state === 'suspended') {
+      this.ac.resume()
+    }
+    if (!this.ac) return
     // Concatenate buffers by scheduling sequentially
-    let when = this.ac.currentTime
+    const ac = this.ac
+    let when = ac.currentTime
     this.buffers.forEach((buf, i) => {
-      const src = this.ac!.createBufferSource()
+      const src = ac.createBufferSource()
       src.buffer = buf
-      src.connect(this.ac!.destination)
+      src.connect(ac.destination)
       src.start(when)
       const duration = buf.duration
       // Update current index at start of each segment
-      setTimeout(() => this.currentIndex.set(i), Math.max(0, (when - this.ac!.currentTime) * 1000))
+      this.timers.push(setTimeout(() => this.currentIndex.set(i), Math.max(0, (when - ac.currentTime) * 1000)) as any)
       this.source = src
       when += duration
     })
-    // Flip playing flag approximately
-    const total = this.buffers.reduce((s, b) => s + b.duration, 0)
     this.playing.set(true)
-    setTimeout(() => this.stop(), total * 1000)
+    // Stop precisely when the final source ends (robust to pause/resume)
+    const last = this.source
+    if (last) last.onended = () => this.stop()
   }
 
   pause() {
@@ -138,12 +156,17 @@ export class AudioPlayerComponent implements OnDestroy {
   }
 
   stop() {
+    // Stop sources first
+    this.source?.stop()
+    this.source = undefined
+    // Clear scheduled timers
+    this.timers?.forEach((id) => clearTimeout(id))
+    this.timers = []
+    // Then close context
     if (this.ac && this.ac.state !== 'closed') {
       this.ac.close()
       this.ac = undefined
     }
-    this.source?.stop()
-    this.source = undefined
     this.playing.set(false)
   }
 

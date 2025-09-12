@@ -1,3 +1,12 @@
+/**
+ * ## Architecture Context
+ * Component for managing voice assignments to story characters.
+ *
+ * This component provides a UI for assigning voices to characters in a parsed story,
+ * with smart recommendations and manual override capabilities. It emits events
+ * for voice assignment changes to maintain separation of concerns.
+ */
+
 import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
@@ -305,11 +314,12 @@ export class VoiceAssignmentComponent {
   }
 
   async generateSmartAssignments() {
-    if (!this.parsedStory()) return
+    const story = this.parsedStory()
+    if (!story?.segments?.length) return
 
     this.isGenerating.set(true)
     try {
-      const storyText = this.parsedStory()!.segments.map(s => s.text).join(' ')
+      const storyText = story.segments.map(s => s.text || '').join(' ')
 
       // Generate character voice recommendations
       const recommendations = await this.voiceAssignmentService.generateSmartAssignments(storyText)

@@ -1,9 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, isDevMode } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { SpeakerParser, ParsedStory, ParsedStorySegment } from '../shared/contracts';
 
 @Injectable()
 export class GrokSpeakerParser implements SpeakerParser {
-  constructor() {}
+  private readonly model = (import.meta as { env?: { VITE_GROK_MODEL?: string } }).env?.VITE_GROK_MODEL ?? 'grok-4-0709';
+
+  constructor(private http: HttpClient) {}
 
   async parseStory(text: string): Promise<ParsedStory> {
     const apiKey = this.getApiKey();
@@ -12,27 +16,19 @@ export class GrokSpeakerParser implements SpeakerParser {
     }
 
     try {
-      const response = await fetch('https://api.x.ai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: this.buildParsePrompt(text)
-          }],
-          model: 'grok-4-0709',
-          temperature: 0.3, // Lower temperature for more consistent parsing
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Grok API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
+      const body = {
+        messages: [{
+          role: 'user',
+          content: this.buildParsePrompt(text)
+        }],
+        model: this.model,
+        temperature: 0.3, // Lower temperature for more consistent parsing
+      };
+      const data = await firstValueFrom(
+        this.http.post<any>('https://api.x.ai/v1/chat/completions', body, {
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        })
+      );
       const content = data.choices?.[0]?.message?.content;
 
       if (!content) {
@@ -79,43 +75,54 @@ Important:
 
   private parseGrokResponse(response: string, originalStory: string): ParsedStory {
     try {
-      // Extract JSON from the response (Grok might add extra text)
-      const jsonMatch = response.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('No JSON found in Grok response');
-      }
-
-      const parsed = JSON.parse(jsonMatch[0]);
+      // Prefer fenced code block; fall back to first JSON object
+      const fenced = response.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+      const jsonStr = fenced ? fenced[1] : (response.match(/\{[\s\S]*\}/)?.[0] ?? null);
+      if (!jsonStr) throw new Error('No JSON found in Grok response');
+      const parsed = JSON.parse(jsonStr);
 
       // Validate the structure
       if (!parsed.segments || !Array.isArray(parsed.segments)) {
         throw new Error('Invalid segments array in response');
       }
 
-      if (!parsed.characters || !Array.isArray(parsed.characters)) {
-        throw new Error('Invalid characters array in response');
-      }
-
       // Validate and clean up segments
+      const AllowedSegmentTypes = ['narration', 'dialogue', 'action'] as const;
+      type SegmentType = typeof AllowedSegmentTypes[number];
+
       const validSegments: ParsedStorySegment[] = parsed.segments
-        .filter((segment: any) => {
-          return segment.type && segment.text &&
-                 ['narration', 'dialogue', 'action'].includes(segment.type);
+        .filter((segment: any): segment is any & { type: SegmentType; text: string } => {
+          return typeof segment.type === 'string' &&
+                 AllowedSegmentTypes.includes(segment.type as SegmentType) &&
+                 typeof segment.text === 'string' &&
+                 segment.text.trim().length > 0;
         })
-        .map((segment: any) => ({
+        .map((segment: any & { type: SegmentType; text: string }) => ({
           type: segment.type,
-          text: segment.text,
-          character: segment.character,
+          text: segment.text.trim(),
+          character: segment.type === 'dialogue' ? segment.character : undefined,
           emotion: segment.emotion,
           ssml: segment.ssml
         }));
 
+      const rawChars = Array.isArray(parsed.characters) ? parsed.characters : [];
+
       return {
         segments: validSegments,
-        characters: parsed.characters.map((char: any) => ({
-          name: char.name || 'Unknown',
-          appearances: char.appearances || 0
-        }))
+        characters: rawChars.length > 0
+          ? rawChars.map((char: any) => ({
+              name: char.name || 'Unknown',
+              appearances: char.appearances || 0
+            }))
+          : Object.entries(
+              validSegments
+                .filter((s: ParsedStorySegment) => s.type === 'dialogue' && s.character)
+                .reduce<Record<string, number>>((acc: Record<string, number>, s: ParsedStorySegment) => {
+                  const key = (s.character ?? 'Unknown').trim();
+                  acc[key] = (acc[key] ?? 0) + 1;
+                  return acc;
+                }, {})
+            ).map(([name, appearances]) => ({ name, appearances }))
       };
 
     } catch (error) {
@@ -124,11 +131,10 @@ Important:
   }
 
   private getApiKey(): string | null {
-    // Try environment variable first
-    const envKey = (window as any).VITE_GROK_API_KEY || (import.meta as any).env?.VITE_GROK_API_KEY;
-    if (envKey) return envKey;
-
-    // Fallback to localStorage for development
-    return localStorage.getItem('GROK_API_KEY');
+    // Dev-only fallback guarded for SSR
+    if (isDevMode() && typeof localStorage !== 'undefined') {
+      return localStorage.getItem('GROK_API_KEY');
+    }
+    return null;
   }
 }

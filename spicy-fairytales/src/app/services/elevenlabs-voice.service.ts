@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, from, firstValueFrom } from 'rxjs';
 import { VoiceService, ParsedStory, VoiceAssignment, AudioChunk, NarratorVoiceAssignment } from '../shared/contracts';
+
+interface ElevenLabsVoice {
+  voice_id: string;
+  name: string;
+}
 
 @Injectable()
 export class ElevenLabsVoiceService implements VoiceService {
   private readonly baseUrl = 'https://api.elevenlabs.io/v1';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   synthesize(story: ParsedStory, assignments?: VoiceAssignment[], narratorVoice?: NarratorVoiceAssignment): Observable<AudioChunk> {
     return from(this.generateAudioForStory(story, assignments, narratorVoice));
@@ -28,18 +34,15 @@ export class ElevenLabsVoiceService implements VoiceService {
     for (const segment of story.segments) {
       try {
         let voiceId: string;
-        let segmentType: string;
 
         if (segment.type === 'dialogue' && segment.character) {
           // Handle character dialogue
           const assignment = voiceAssignments.find(a => a.character === segment.character);
           if (!assignment) continue;
           voiceId = assignment.voiceId;
-          segmentType = 'dialogue';
         } else if (segment.type === 'narration') {
           // Handle narration with dedicated narrator voice
           voiceId = narratorVoiceAssignment.voiceId;
-          segmentType = 'narration';
         } else {
           // Skip action segments or other types
           continue;
@@ -50,7 +53,6 @@ export class ElevenLabsVoiceService implements VoiceService {
           audio: audioData,
           text: segment.text,
           timestamp: Date.now(),
-          segmentType: segment.type as 'narration' | 'dialogue' | 'action',
           character: segment.character
         };
       } catch (error) {
@@ -66,31 +68,35 @@ export class ElevenLabsVoiceService implements VoiceService {
       throw new Error('ELEVENLABS_API_KEY not configured');
     }
 
-    const response = await fetch(`${this.baseUrl}/text-to-speech/${voiceId}`, {
-      method: 'POST',
-      headers: {
-        'Accept': 'audio/mpeg',
-        'Content-Type': 'application/json',
-        'xi-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        text: text,
-        model_id: 'eleven_monolingual_v1',
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.5,
-          style: 0.0,
-          use_speaker_boost: true
-        }
-      }),
-    });
+    const controller = new AbortController();
+    const timeoutMs = 15000;
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText} - ${errorText}`);
+    try {
+      const response = await firstValueFrom(
+        this.http.post(`${this.baseUrl}/text-to-speech/${voiceId}`, {
+          text: text,
+          model_id: 'eleven_monolingual_v1',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+            style: 0.0,
+            use_speaker_boost: true
+          }
+        }, {
+          headers: {
+            'Accept': 'audio/mpeg',
+            'Content-Type': 'application/json',
+            'xi-api-key': apiKey,
+          },
+          responseType: 'arraybuffer',
+        })
+      );
+
+      return response as ArrayBuffer;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    return await response.arrayBuffer();
   }
 
   private getDefaultNarratorVoice(): NarratorVoiceAssignment {
@@ -127,21 +133,20 @@ export class ElevenLabsVoiceService implements VoiceService {
     }
 
     try {
-      const response = await fetch(`${this.baseUrl}/voices`, {
-        headers: {
-          'xi-api-key': apiKey,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`ElevenLabs API error: ${response.status} ${response.statusText}`);
+      const { voices } = await firstValueFrom(
+        this.http.get<{ voices?: ElevenLabsVoice[] }>(`${this.baseUrl}/voices`, {
+          headers: {
+            'xi-api-key': apiKey,
+          },
+        })
+      );
+      if (!Array.isArray(voices)) {
+        return [];
       }
-
-      const data = await response.json();
-      return data.voices?.map((voice: any) => ({
+      return voices.map((voice) => ({
         id: voice.voice_id,
         name: voice.name
-      })) || [];
+      }));
 
     } catch (error) {
       console.error('Failed to list voices:', error);
@@ -150,11 +155,10 @@ export class ElevenLabsVoiceService implements VoiceService {
   }
 
   private getApiKey(): string | null {
-    // Try environment variable first
-    const envKey = (window as any).VITE_ELEVENLABS_API_KEY || (import.meta as any).env?.VITE_ELEVENLABS_API_KEY;
-    if (envKey) return envKey;
-
-    // Fallback to localStorage for development
-    return localStorage.getItem('ELEVENLABS_API_KEY');
+    // Never ship secrets to the browser. Allow dev-only localStorage; require server proxy in prod.
+    if ((import.meta as any).env?.DEV) {
+      return localStorage.getItem('ELEVENLABS_API_KEY');
+    }
+    return null;
   }
 }

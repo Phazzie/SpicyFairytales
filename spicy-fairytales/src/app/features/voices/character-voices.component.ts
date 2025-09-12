@@ -1,3 +1,12 @@
+/**
+ * ## Architecture Context
+ * Component for displaying and managing character voice assignments.
+ *
+ * This component shows the current voice assignments for story characters,
+ * provides smart voice recommendations, and allows manual voice selection.
+ * It integrates with the voice store and assignment service.
+ */
+
 import { Component, Inject, effect, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VoiceStore } from '../../stores/voice.store'
@@ -314,7 +323,7 @@ export class CharacterVoicesComponent {
 
   async generateSmartAssignments() {
     const storyText = this.stories.currentText()
-    if (!storyText) {
+    if (!storyText?.trim()) {
       this.toastService.error('❌ No Story Available', 'Please generate a story first')
       return
     }

@@ -1,3 +1,11 @@
+/**
+ * ## Architecture Context
+ * Component for displaying smart voice recommendations for characters.
+ *
+ * This component shows AI-powered voice recommendations based on character traits,
+ * allowing users to quickly assign appropriate voices to story characters.
+ */
+
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VoiceRecommendation } from '../../services/voice-assignment.service'
@@ -15,7 +23,7 @@ import { VoiceRecommendation } from '../../services/voice-assignment.service'
 
       <div class="recommendations-grid">
         <div
-          *ngFor="let rec of recommendations"
+          *ngFor="let rec of recommendations; trackBy: trackByCharacter"
           class="recommendation-card"
           [class.high-confidence]="rec.confidence > 0.7"
           [class.medium-confidence]="rec.confidence > 0.4 && rec.confidence <= 0.7"
@@ -269,6 +277,8 @@ export class SmartVoiceRecommendationsComponent {
   @Output() acceptAlternative = new EventEmitter<{ character: string; voiceId: string }>()
   @Output() acceptAll = new EventEmitter<VoiceRecommendation[]>()
   @Output() dismiss = new EventEmitter<void>()
+
+  trackByCharacter = (_: number, rec: VoiceRecommendation) => rec.character
 
   getVoiceName(voiceId: string): string {
     const voice = this.voices.find(v => v.id === voiceId)

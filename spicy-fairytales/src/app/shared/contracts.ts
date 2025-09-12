@@ -1,4 +1,10 @@
 /**
+ * ## Architecture Context
+ * Shared contracts and interfaces for the SpicyFairytales application
+ * Defines service contracts, data models, and strategy interfaces
+ */
+
+/**
  * Shared contracts for service seams used across the Angular app.
  */
 import { Observable } from 'rxjs'

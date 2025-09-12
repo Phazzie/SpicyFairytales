@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core'
+import { Component, Inject, OnDestroy } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { Observable } from 'rxjs'
 import { StoryFormComponent } from '../features/story/story-form.component'
@@ -7,7 +7,7 @@ import { CharacterVoicesComponent } from '../features/voices/character-voices.co
 import { AudioPlayerComponent } from '../features/voice/audio-player.component'
 import { ExportPanelComponent } from '../features/export/export-panel.component'
 import { SPEAKER_PARSER, STORY_SERVICE, VOICE_SERVICE } from '../shared/tokens'
-import type { StoryOptions, StoryService, VoiceAssignment, VoiceService, AudioChunk } from '../shared/contracts'
+import type { StoryOptions, StoryService, VoiceAssignment, VoiceService, AudioChunk, SpeakerParser } from '../shared/contracts'
 import { StoryStore } from '../stores/story.store'
 import { VoiceStore } from '../stores/voice.store'
 import { env } from '../shared/env'
@@ -184,7 +184,7 @@ import { ToastService } from '../shared/toast.service'
     `,
   ],
 })
-export class GeneratePageComponent {
+export class GeneratePageComponent implements OnDestroy {
   latestChunk: string | null = null
   private sub?: { unsubscribe: () => void }
   audioUrl: string | null = null
@@ -198,12 +198,12 @@ export class GeneratePageComponent {
   isSynthesizing = false
 
   constructor(
-    @Inject(STORY_SERVICE) private story: StoryService,
-    public store: StoryStore,
-    @Inject(SPEAKER_PARSER) private parser: any,
-    @Inject(VOICE_SERVICE) private voice: VoiceService,
-    private voices: VoiceStore,
-    private toastService: ToastService
+    @Inject(STORY_SERVICE) private readonly story: StoryService,
+    public readonly store: StoryStore,
+    @Inject(SPEAKER_PARSER) private readonly parser: SpeakerParser,
+    @Inject(VOICE_SERVICE) private readonly voice: VoiceService,
+    private readonly voices: VoiceStore,
+    private readonly toastService: ToastService
   ) {}
 
   onGenerate(options: StoryOptions, form: { resetSubmitting: () => void }) {
@@ -219,9 +219,10 @@ export class GeneratePageComponent {
         this.latestChunk = chunk
         this.store.append(chunk)
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.isGenerating = false
-        this.toastService.error('❌ Story Generation Failed', error.message || 'Failed to generate story')
+        const message = error instanceof Error ? error.message : 'Failed to generate story'
+        this.toastService.error('❌ Story Generation Failed', message)
         form.resetSubmitting()
       },
       complete: () => {
@@ -246,8 +247,9 @@ export class GeneratePageComponent {
         '✅ Speakers Parsed',
         `Found ${parsed.segments?.length || 0} segments and ${parsed.characters?.length || 0} characters`
       )
-    } catch (error: any) {
-      this.toastService.error('❌ Speaker Parsing Failed', error.message || 'Failed to parse speakers')
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : 'Failed to parse speakers'
+      this.toastService.error('❌ Speaker Parsing Failed', message)
     } finally {
       this.isParsing = false
     }
@@ -271,9 +273,10 @@ export class GeneratePageComponent {
 
     const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
       next: (chunk) => buffers.push(chunk.audio),
-      error: (error) => {
+      error: (error: unknown) => {
         this.isSynthesizing = false
-        this.toastService.error('❌ Audio Synthesis Failed', error.message || 'Failed to create audio')
+        const message = error instanceof Error ? error.message : 'Failed to create audio'
+        this.toastService.error('❌ Audio Synthesis Failed', message)
         sub.unsubscribe()
       },
       complete: () => {
@@ -327,7 +330,12 @@ export class GeneratePageComponent {
 
   private async testStoryGeneration(): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (this.sub) this.sub.unsubscribe()
+      let generationSub: { unsubscribe: () => void } | undefined
+      const timeoutId = setTimeout(() => {
+        generationSub?.unsubscribe()
+        reject(new Error('Story generation timed out'))
+      }, 30000)
+
       this.latestChunk = ''
       this.store.reset()
 
@@ -340,17 +348,22 @@ export class GeneratePageComponent {
         prompt: 'A short magical adventure story for testing API integration'
       }
 
-      this.sub = this.story.generateStory(testOptions).subscribe({
+      generationSub = this.story.generateStory(testOptions).subscribe({
         next: (chunk) => {
           this.latestChunk = chunk
           this.store.append(chunk)
         },
-        error: (error) => reject(new Error(`Story generation failed: ${error.message}`)),
-        complete: () => resolve()
+        error: (error) => {
+          clearTimeout(timeoutId)
+          generationSub = undefined
+          reject(new Error(`Story generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`))
+        },
+        complete: () => {
+          clearTimeout(timeoutId)
+          generationSub = undefined
+          resolve()
+        }
       })
-
-      // Timeout after 30 seconds
-      setTimeout(() => reject(new Error('Story generation timed out')), 30000)
     })
   }
 
@@ -376,14 +389,26 @@ export class GeneratePageComponent {
         this.audioUrl = null
       }
 
+      let synthSub: { unsubscribe: () => void } | undefined
+      const timeoutId = setTimeout(() => {
+        synthSub?.unsubscribe()
+        reject(new Error('Audio synthesis timed out'))
+      }, 60000)
+
       const assigns: VoiceAssignment[] = Object.entries(this.voices.assignments()).map(([character, voiceId]) => ({ character, voiceId }))
       const narratorVoice = this.voices.narratorVoice() || undefined
       const buffers: ArrayBuffer[] = []
 
-      const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
+      synthSub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
         next: (chunk) => buffers.push(chunk.audio),
-        error: (error) => reject(new Error(`Audio synthesis failed: ${error.message}`)),
+        error: (error) => {
+          clearTimeout(timeoutId)
+          synthSub = undefined
+          reject(new Error(`Audio synthesis failed: ${error instanceof Error ? error.message : 'Unknown error'}`))
+        },
         complete: () => {
+          clearTimeout(timeoutId)
+          synthSub = undefined
           if (buffers.length === 0) {
             reject(new Error('No audio data received'))
             return
@@ -401,9 +426,14 @@ export class GeneratePageComponent {
           resolve()
         }
       })
-
-      // Timeout after 60 seconds
-      setTimeout(() => reject(new Error('Audio synthesis timed out')), 60000)
     })
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe()
+    if (this.audioUrl) {
+      URL.revokeObjectURL(this.audioUrl)
+      this.audioUrl = null
+    }
   }
 }

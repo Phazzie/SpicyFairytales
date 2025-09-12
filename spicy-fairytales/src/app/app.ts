@@ -10,5 +10,6 @@ import { ToastContainerComponent } from './shared/toast-container.component';
   styleUrl: './app.scss'
 })
 export class App {
-  protected readonly title = signal('spicy-fairytales');
+  // Used by app.html <h1>{{ title() }}</h1>
+  protected readonly title = signal('🎭 Spicy FairyTales');
 }

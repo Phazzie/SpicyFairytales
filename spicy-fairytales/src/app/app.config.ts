@@ -10,14 +10,14 @@ import { HttpStoryService } from './services/http-story.service';
 import { GrokSpeakerParser } from './services/grok-speaker-parser.service';
 import { ElevenLabsVoiceService } from './services/elevenlabs-voice.service';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { authInterceptor } from './shared/http.interceptor';
+import { authInterceptor, apiRequestInterceptor } from './shared/http.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
   provideRouter(routes), provideClientHydration(withEventReplay()),
-  provideHttpClient(withInterceptors([authInterceptor])),
+  provideHttpClient(withInterceptors([authInterceptor, apiRequestInterceptor])),
   // Seam DI providers (mocks for now; swap with real services later)
   { provide: STORY_SERVICE, useClass: env.useMocks ? MockStoryService : HttpStoryService },
   { provide: SPEAKER_PARSER, useClass: env.useMocks ? MockSpeakerParser : GrokSpeakerParser },

@@ -1,3 +1,8 @@
+/**
+ * ## Architecture Context
+ * Unit tests for the root App component; validates creation and header rendering.
+ */
+
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 
@@ -18,6 +23,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, spicy-fairytales');
+    expect(compiled.querySelector('h1')?.textContent).toContain('🎭 Spicy FairyTales');
   });
 });

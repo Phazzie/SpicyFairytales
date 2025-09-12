@@ -1,5 +1,19 @@
+/**
+ * Voice Assignment Service
+ * Orchestrates strategy-based scoring to recommend voices for characters and narrators.
+ *
+ * This service implements the Strategy Pattern to analyze character traits from story context
+ * and recommend optimal voice assignments using configurable scoring strategies. It integrates
+ * with voice stores and provides both character and narrator voice recommendations.
+ *
+ * INPUT: ParsedStory with character information and story context
+ * OUTPUT: VoiceAssignment[] for characters, NarratorVoiceAssignment for narration
+ * DEPENDENCIES: VoiceStore for voice data, scoring strategies via DI tokens
+ * INTEGRATIONS: Consumed by voice assignment components, feeds into audio synthesis
+ * ERROR HANDLING: Graceful fallbacks for missing voices or failed analysis
+ * @file
+ */
 import { Injectable, Inject } from '@angular/core'
-import { Observable, from } from 'rxjs'
 import { SPEAKER_PARSER } from '../shared/tokens'
 import type { ParsedStory, VoiceAssignment, NarratorVoiceAssignment } from '../shared/contracts'
 import { VoiceStore } from '../stores/voice.store'
@@ -84,26 +98,25 @@ export class VoiceAssignmentService {
 
     // Convert to lowercase for case-insensitive matching
     const nameLower = name.toLowerCase()
+    const contextLower = this.extractCharacterContext(name, parsed).toLowerCase()
 
     // Age Detection Algorithm
     // Pattern: Look for age-indicating keywords in character names
     if (nameLower.includes('grandma') || nameLower.includes('grandpa') ||
-        nameLower.includes('elder') || nameLower.includes('old')) {
+        /\b(elder|elderly|old)\b/.test(contextLower)) {
       traits.age = 'elderly'
     } else if (nameLower.includes('kid') || nameLower.includes('child') ||
-               nameLower.includes('boy') || nameLower.includes('girl')) {
+               /\b(boy|girl|kid|child)\b/.test(contextLower)) {
       traits.age = 'child'
-    } else if (nameLower.includes('teen') || nameLower.includes('young')) {
+    } else if (nameLower.includes('teen') || /\byoung\b/.test(contextLower)) {
       traits.age = 'teen'
     }
 
     // Gender Detection Algorithm
-    // Pattern: Look for gender-indicating pronouns and titles
-    if (nameLower.includes('he ') || nameLower.includes('him ') ||
-        nameLower.includes('his ') || nameLower.match(/\b(mr|father|dad|king|prince|wizard|warrior)\b/)) {
+    // Pattern: Look for gender-indicating pronouns and titles in nearby context
+    if (/\b(he|him|his|mr|father|dad|king|prince|wizard|warrior)\b/.test(contextLower)) {
       traits.gender = 'male'
-    } else if (nameLower.includes('she ') || nameLower.includes('her ') ||
-               nameLower.match(/\b(mrs|mother|mom|queen|princess|witch|sorceress)\b/)) {
+    } else if (/\b(she|her|mrs|mother|mom|queen|princess|witch|sorceress)\b/.test(contextLower)) {
       traits.gender = 'female'
     }
 
@@ -275,7 +288,8 @@ export class VoiceAssignmentService {
   }
 
   /**
-   * Recommend narrator voices based on story tone and genre
+   * Analyze story for narrator voice characteristics
+   */
   private analyzeStoryForNarrator(storyText: string): {
     tone: 'formal' | 'casual' | 'dramatic' | 'whimsical'
     genre: string[]
@@ -306,7 +320,7 @@ export class VoiceAssignmentService {
     }
 
     // Length analysis
-    const wordCount = storyText.split(' ').length
+    const wordCount = storyText.trim().split(/\s+/).length
     let length: 'short' | 'medium' | 'long' = 'medium'
     if (wordCount < 500) length = 'short'
     else if (wordCount > 1500) length = 'long'
@@ -390,37 +404,13 @@ export class VoiceAssignmentService {
    * Recommend narrator voices based on story tone and genre
    */
   recommendNarratorVoice(storyText: string): NarratorVoiceAssignment {
-    // Analyze story for tone indicators
-    const storyLower = storyText.toLowerCase()
-
-    // Professional voices for serious/fantasy stories
-    const professionalVoices = [
-      { voiceId: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', reasoning: 'Clear, professional tone perfect for narration' },
-      { voiceId: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', reasoning: 'Warm, engaging voice for storytelling' },
-      { voiceId: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', reasoning: 'Confident, authoritative presence' }
-    ]
-
-    // Warm voices for lighter stories
-    const warmVoices = [
-      { voiceId: 'ErXwobaYiN019PkySvjV', name: 'Antoni', reasoning: 'Warm, friendly tone for engaging narration' },
-      { voiceId: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', reasoning: 'Relaxed, conversational style' }
-    ]
-
-    // Choose based on story content
-    let selectedVoice: { voiceId: string; name: string; reasoning: string }
-    if (storyLower.includes('dark') || storyLower.includes('mysterious') ||
-        storyLower.includes('ancient') || storyLower.includes('forbidden')) {
-      selectedVoice = professionalVoices[0] // Rachel for serious tones
-    } else if (storyLower.includes('adventure') || storyLower.includes('quest') ||
-               storyLower.includes('hero') || storyLower.includes('journey')) {
-      selectedVoice = professionalVoices[1] // Bella for adventurous tales
-    } else {
-      selectedVoice = warmVoices[0] // Antoni for general storytelling
-    }
-
-    return {
-      voiceId: selectedVoice.voiceId,
-      name: selectedVoice.name
-    }
+    const analysis = this.analyzeStoryForNarrator(storyText)
+    const voices = this.voiceStore.voices()
+    if (!voices.length) return { voiceId: '', name: '' }
+    const scored = voices
+      .map(v => ({ v, score: this.scoreVoiceForNarrator(v, analysis) }))
+      .sort((a, b) => b.score - a.score)
+    const best = scored[0].v
+    return { voiceId: best.id, name: best.name }
   }
 }

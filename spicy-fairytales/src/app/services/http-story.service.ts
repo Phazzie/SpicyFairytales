@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { Observable, from } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, from, firstValueFrom } from 'rxjs';
 import { StoryService, StoryOptions } from '../shared/contracts';
 
 @Injectable()
 export class HttpStoryService implements StoryService {
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
   generateStory(options: StoryOptions): Observable<string> {
     return from(this.streamStoryFromGrok(options));
