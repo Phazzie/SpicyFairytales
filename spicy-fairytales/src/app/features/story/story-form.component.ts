@@ -1,3 +1,6 @@
+/**
+ * Form component for configuring story generation parameters and options.
+ */
 import { Component, EventEmitter, Output, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms'

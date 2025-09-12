@@ -1,3 +1,6 @@
+/**
+ * Component for displaying AI-powered voice recommendations based on character analysis.
+ */
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VoiceRecommendation } from '../../services/voice-assignment.service'

@@ -1,3 +1,6 @@
+/**
+ * Audio player component for playing back synthesized story audio with controls.
+ */
 import { Component, Inject, OnDestroy, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { StoryStore } from '../../stores/story.store'

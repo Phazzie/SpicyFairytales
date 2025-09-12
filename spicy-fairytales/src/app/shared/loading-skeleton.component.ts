@@ -1,3 +1,6 @@
+/**
+ * Loading skeleton component for displaying placeholder content during async operations.
+ */
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 

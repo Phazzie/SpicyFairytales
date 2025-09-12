@@ -1,3 +1,6 @@
+/**
+ * Server-side configuration for Angular Universal SSR rendering.
+ */
 import { mergeApplicationConfig, ApplicationConfig } from '@angular/core';
 import { provideServerRendering, withRoutes } from '@angular/ssr';
 import { appConfig } from './app.config';

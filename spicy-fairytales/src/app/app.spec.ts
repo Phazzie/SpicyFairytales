@@ -1,3 +1,6 @@
+/**
+ * Unit tests for the root Angular application component.
+ */
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
 

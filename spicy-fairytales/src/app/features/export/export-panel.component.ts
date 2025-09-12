@@ -1,3 +1,6 @@
+/**
+ * Component for exporting generated stories and audio in various formats.
+ */
 import { Component } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { StoryStore } from '../../stores/story.store'

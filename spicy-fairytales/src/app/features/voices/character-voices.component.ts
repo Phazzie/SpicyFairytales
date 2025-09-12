@@ -1,3 +1,6 @@
+/**
+ * Component for managing character voice assignments and narrator voice selection.
+ */
 import { Component, Inject, effect, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VoiceStore } from '../../stores/voice.store'

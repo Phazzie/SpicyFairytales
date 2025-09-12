@@ -1,3 +1,6 @@
+/**
+ * Component for assigning voice actors to story characters and managing voice settings.
+ */
 import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'

@@ -1,3 +1,6 @@
+/**
+ * Voice-specific audio player for testing and previewing voice samples.
+ */
 import { Component, Input } from '@angular/core'
 import { CommonModule } from '@angular/common'
 

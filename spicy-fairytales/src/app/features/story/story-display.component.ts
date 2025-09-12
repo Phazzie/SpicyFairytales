@@ -1,3 +1,6 @@
+/**
+ * Component for displaying generated story content with formatting and structure.
+ */
 import { Component, Input, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 

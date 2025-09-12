@@ -1,3 +1,6 @@
+/**
+ * Unit tests for mock service implementations used in development and testing.
+ */
 import { firstValueFrom, lastValueFrom } from 'rxjs'
 import { reduce } from 'rxjs/operators'
 import { MockStoryService } from './mocks'

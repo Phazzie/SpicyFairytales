@@ -1,3 +1,6 @@
+/**
+ * HTTP interceptor for handling authentication, error handling, and request/response processing.
+ */
 import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http'
 import { inject } from '@angular/core'
 import { Observable } from 'rxjs'
