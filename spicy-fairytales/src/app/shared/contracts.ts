@@ -9,6 +9,11 @@ export interface StoryOptions {
   length: 'short' | 'medium' | 'long'
   themes?: string[]
   prompt?: string
+  // New fields for enhanced story generation
+  characterType?: 'werewolf' | 'vampire' | 'faerie'
+  userIdeas?: string
+  spicyLevel?: number // 1-10 scale
+  selectedThemes?: string[]
 }
 
 export interface ParsedStorySegment {
