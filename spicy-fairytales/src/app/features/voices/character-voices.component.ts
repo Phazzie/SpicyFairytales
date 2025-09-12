@@ -15,7 +15,7 @@ import { ToastService } from '../../shared/toast.service'
   template: `
     <section class="voices">
       <header class="voices-header">
-        <h3>🎭 Character Voices</h3>
+        <h3>🎭 Voice Assignments</h3>
         <div class="header-actions">
           <button
             class="smart-assign-btn"
@@ -39,6 +39,32 @@ import { ToastService } from '../../shared/toast.service'
         (acceptAll)="onAcceptAll($event)"
         (dismiss)="onDismissRecommendations()"
       ></app-smart-voice-recommendations>
+
+      <!-- Narrator Voice Section -->
+      <div class="narrator-section">
+        <h4>📖 Narrator Voice</h4>
+        <div class="voice-selector">
+          <select
+            [value]="narratorVoice()?.voiceId || ''"
+            (change)="onNarratorVoiceChange($event)"
+            class="voice-select">
+            <option value="">Select Narrator Voice...</option>
+            <option *ngFor="let voice of voiceStore.voices()" [value]="voice.id">
+              {{ voice.name }}
+            </option>
+          </select>
+          <button
+            *ngIf="narratorVoice()"
+            (click)="clearNarratorVoice()"
+            class="clear-btn"
+            type="button">
+            Clear
+          </button>
+        </div>
+        <p class="help-text" *ngIf="!narratorVoice()">
+          Choose a voice for narration and descriptive text
+        </p>
+      </div>
 
       <div *ngIf="characters().length === 0" class="muted">No characters detected yet.</div>
 
@@ -185,6 +211,58 @@ import { ToastService } from '../../shared/toast.service'
         border-color: var(--accent-color, #007bff);
         box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
       }
+
+      .narrator-section {
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 8px;
+        color: white;
+      }
+
+      .narrator-section h4 {
+        margin: 0 0 0.75rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .voice-selector {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+        margin-bottom: 0.5rem;
+      }
+
+      .voice-select {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        background: rgba(255, 255, 255, 0.9);
+        color: #333;
+        font-size: 0.9rem;
+      }
+
+      .clear-btn {
+        padding: 0.4rem 0.8rem;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        transition: background-color 0.2s;
+      }
+
+      .clear-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+
+      .help-text {
+        margin: 0.5rem 0 0 0;
+        font-size: 0.8rem;
+        opacity: 0.8;
+      }
     `,
   ],
 })
@@ -206,6 +284,11 @@ export class CharacterVoicesComponent {
       const uniques = new Set((parsed?.characters ?? []).map((c) => c.name))
       this.characters.set(Array.from(uniques))
     })
+  }
+
+  // Narrator Voice Property (computed)
+  get narratorVoice() {
+    return this.voiceStore.narratorVoice
   }
 
   assignment(c: string) {
@@ -254,6 +337,14 @@ export class CharacterVoicesComponent {
         '✅ Smart Recommendations Ready',
         `Generated ${recommendations.length} recommendations (${highConfidence} high confidence)`
       )
+
+      // Also generate narrator voice recommendation
+      const narratorRecommendation = this.voiceAssignmentService.recommendNarratorVoice(storyText)
+      this.voiceStore.setNarratorVoice(narratorRecommendation)
+      this.toastService.success(
+        '✅ Narrator Voice Recommended',
+        `Selected ${narratorRecommendation.name} for narration`
+      )
     } catch (error: any) {
       this.toastService.error('❌ Smart Assignment Failed', error.message || 'Could not generate recommendations')
     } finally {
@@ -280,6 +371,26 @@ export class CharacterVoicesComponent {
   onDismissRecommendations() {
     this.smartRecommendations.set([])
     this.toastService.info('💡 Recommendations Dismissed', 'You can always generate new recommendations')
+  }
+
+  // Narrator Voice Methods
+  onNarratorVoiceChange(event: Event) {
+    const target = event.target as HTMLSelectElement
+    const voiceId = target.value
+    const voice = this.voiceStore.voices().find(v => v.id === voiceId)
+
+    if (voiceId && voice) {
+      this.voiceStore.setNarratorVoice({
+        voiceId,
+        name: voice.name
+      })
+      this.toastService.success('✅ Narrator Voice Set', `Narrator → ${voice.name}`)
+    }
+  }
+
+  clearNarratorVoice() {
+    this.voiceStore.clearNarratorVoice()
+    this.toastService.info('🗑️ Narrator Voice Cleared', 'No narrator voice assigned')
   }
 
   private getVoiceName(voiceId: string): string {

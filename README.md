@@ -16,6 +16,8 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 - **Intelligent Matching**: Matches voices based on age, gender, personality, and role
 - **Confidence Scoring**: Provides confidence levels and alternative recommendations
 - **Manual Override**: Full control with manual voice selection when needed
+- **Narrator Voice Separation**: Dedicated narrator voice for professional storytelling
+- **Smart Narrator Recommendations**: AI selects optimal narrator voice based on story tone and genre
 
 ### 🎵 Professional Audio Synthesis
 - **ElevenLabs Integration**: High-quality voice synthesis with 100+ voices
@@ -103,6 +105,8 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
    - Click "🧠 Smart Assign" for AI-powered voice recommendations
    - Review suggestions with confidence scores and reasoning
    - Accept recommendations or manually adjust voices
+   - **Narrator Voice**: Choose a dedicated narrator voice for professional storytelling
+   - The system automatically recommends the best narrator voice based on your story's tone and genre
 
 4. **Synthesize Audio**:
    - Click "🔊 Synthesize Audio" to create professional voice audio
@@ -176,6 +180,25 @@ const WEIGHTS = {
 // 5. Calculate confidence based on score distribution
 ```
 
+### Narrator Voice Intelligence
+
+The narrator voice system intelligently selects voices based on story analysis:
+
+```typescript
+// Story analysis for narrator voice selection
+const analysis = {
+  tone: 'whimsical' | 'dramatic' | 'formal' | 'casual',
+  genre: ['fantasy', 'adventure', 'romance'],
+  length: 'short' | 'medium' | 'long'
+}
+
+// Voice recommendations:
+// - Whimsical stories: Bella (engaging, youthful)
+// - Dramatic stories: Rachel (clear, professional)
+// - Formal stories: Rachel (authoritative)
+// - Casual stories: Antoni (relaxed, friendly)
+```
+
 ## 🔧 Development
 
 ### Available Scripts
@@ -229,9 +252,10 @@ The app supports multiple environments:
 - [x] Modern UI with theme support
 - [x] Comprehensive error handling
 - [x] API integration testing
+- [x] **Narrator voice separation with AI recommendations**
+- [x] **Smart narrator voice selection based on story content**
 
 ### 🔄 In Progress
-- [ ] Narrator voice separation
 - [ ] Emotion-based voice modulation
 - [ ] Story library and persistence
 - [ ] Advanced customization options

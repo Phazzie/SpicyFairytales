@@ -1,7 +1,7 @@
 import { Injectable, Inject } from '@angular/core'
 import { Observable, from } from 'rxjs'
 import { SPEAKER_PARSER } from '../shared/tokens'
-import type { ParsedStory, VoiceAssignment } from '../shared/contracts'
+import type { ParsedStory, VoiceAssignment, NarratorVoiceAssignment } from '../shared/contracts'
 import { VoiceStore } from '../stores/voice.store'
 
 export interface CharacterTraits {
@@ -275,6 +275,107 @@ export class VoiceAssignmentService {
   }
 
   /**
+   * Recommend narrator voices based on story tone and genre
+  private analyzeStoryForNarrator(storyText: string): {
+    tone: 'formal' | 'casual' | 'dramatic' | 'whimsical'
+    genre: string[]
+    length: 'short' | 'medium' | 'long'
+  } {
+    const text = storyText.toLowerCase()
+
+    // Tone analysis
+    let tone: 'formal' | 'casual' | 'dramatic' | 'whimsical' = 'casual'
+    if (text.includes('once upon a time') || text.includes('fairy tale')) {
+      tone = 'whimsical'
+    } else if (text.includes('dark') || text.includes('mysterious') || text.includes('adventure')) {
+      tone = 'dramatic'
+    } else if (text.includes('dear') || text.includes('gentle') || text.includes('noble')) {
+      tone = 'formal'
+    }
+
+    // Genre analysis
+    const genres: string[] = []
+    if (text.includes('magic') || text.includes('fairy') || text.includes('princess')) {
+      genres.push('fantasy')
+    }
+    if (text.includes('love') || text.includes('heart') || text.includes('romance')) {
+      genres.push('romance')
+    }
+    if (text.includes('adventure') || text.includes('quest') || text.includes('journey')) {
+      genres.push('adventure')
+    }
+
+    // Length analysis
+    const wordCount = storyText.split(' ').length
+    let length: 'short' | 'medium' | 'long' = 'medium'
+    if (wordCount < 500) length = 'short'
+    else if (wordCount > 1500) length = 'long'
+
+    return { tone, genre: genres, length }
+  }
+
+  /**
+   * Score voice suitability for narration
+   */
+  private scoreVoiceForNarrator(
+    voice: { id: string; name: string },
+    analysis: { tone: string; genre: string[]; length: string }
+  ): number {
+    let score = 5 // Base score
+    const voiceName = voice.name.toLowerCase()
+
+    // Tone matching
+    if (analysis.tone === 'whimsical' && (voiceName.includes('young') || voiceName.includes('bella'))) {
+      score += 3 // Whimsical stories need engaging, youthful narrators
+    } else if (analysis.tone === 'dramatic' && (voiceName.includes('deep') || voiceName.includes('arnold'))) {
+      score += 3 // Dramatic stories benefit from deep, authoritative voices
+    } else if (analysis.tone === 'formal' && (voiceName.includes('rachel') || voiceName.includes('professional'))) {
+      score += 3 // Formal stories need clear, professional narration
+    } else if (analysis.tone === 'casual' && (voiceName.includes('josh') || voiceName.includes('antoni'))) {
+      score += 2 // Casual stories work well with relaxed voices
+    }
+
+    // Genre preferences
+    if (analysis.genre.includes('fantasy') && voiceName.includes('bella')) {
+      score += 2 // Bella works well for fantasy narration
+    }
+    if (analysis.genre.includes('romance') && voiceName.includes('rachel')) {
+      score += 2 // Rachel is good for romantic storytelling
+    }
+
+    // Length considerations
+    if (analysis.length === 'long' && (voiceName.includes('rachel') || voiceName.includes('bella'))) {
+      score += 1 // Clear voices work better for longer stories
+    }
+
+    return Math.min(score, 10) // Cap at 10
+  }
+
+  /**
+   * Generate reasoning for narrator voice recommendation
+   */
+  private generateNarratorReasoning(
+    voice: { id: string; name: string },
+    analysis: { tone: string; genre: string[]; length: string }
+  ): string {
+    const reasons: string[] = []
+
+    if (analysis.tone) {
+      reasons.push(`${analysis.tone} tone`)
+    }
+
+    if (analysis.genre.length > 0) {
+      reasons.push(`${analysis.genre.join(', ')} genre`)
+    }
+
+    if (analysis.length) {
+      reasons.push(`${analysis.length} story`)
+    }
+
+    return `${voice.name} - Perfect for ${reasons.join(', ')}`
+  }
+
+    /**
    * Apply smart recommendations to the voice store
    */
   applyRecommendations(recommendations: VoiceRecommendation[]): void {
@@ -283,5 +384,43 @@ export class VoiceAssignmentService {
         this.voiceStore.setAssignment(rec.character, rec.recommendedVoiceId)
       }
     })
+  }
+
+  /**
+   * Recommend narrator voices based on story tone and genre
+   */
+  recommendNarratorVoice(storyText: string): NarratorVoiceAssignment {
+    // Analyze story for tone indicators
+    const storyLower = storyText.toLowerCase()
+
+    // Professional voices for serious/fantasy stories
+    const professionalVoices = [
+      { voiceId: '21m00Tcm4TlvDq8ikWAM', name: 'Rachel', reasoning: 'Clear, professional tone perfect for narration' },
+      { voiceId: 'EXAVITQu4vr4xnSDxMaL', name: 'Bella', reasoning: 'Warm, engaging voice for storytelling' },
+      { voiceId: 'MF3mGyEYCl7XYWbV9V6O', name: 'Elli', reasoning: 'Confident, authoritative presence' }
+    ]
+
+    // Warm voices for lighter stories
+    const warmVoices = [
+      { voiceId: 'ErXwobaYiN019PkySvjV', name: 'Antoni', reasoning: 'Warm, friendly tone for engaging narration' },
+      { voiceId: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', reasoning: 'Relaxed, conversational style' }
+    ]
+
+    // Choose based on story content
+    let selectedVoice: { voiceId: string; name: string; reasoning: string }
+    if (storyLower.includes('dark') || storyLower.includes('mysterious') ||
+        storyLower.includes('ancient') || storyLower.includes('forbidden')) {
+      selectedVoice = professionalVoices[0] // Rachel for serious tones
+    } else if (storyLower.includes('adventure') || storyLower.includes('quest') ||
+               storyLower.includes('hero') || storyLower.includes('journey')) {
+      selectedVoice = professionalVoices[1] // Bella for adventurous tales
+    } else {
+      selectedVoice = warmVoices[0] // Antoni for general storytelling
+    }
+
+    return {
+      voiceId: selectedVoice.voiceId,
+      name: selectedVoice.name
+    }
   }
 }

@@ -266,9 +266,10 @@ export class GeneratePageComponent {
     }
 
     const assigns: VoiceAssignment[] = Object.entries(this.voices.assignments()).map(([character, voiceId]) => ({ character, voiceId }))
+    const narratorVoice = this.voices.narratorVoice() || undefined
     const buffers: ArrayBuffer[] = []
 
-    const sub = this.voice.synthesize(parsed, assigns).subscribe({
+    const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
       next: (chunk) => buffers.push(chunk.audio),
       error: (error) => {
         this.isSynthesizing = false
@@ -376,9 +377,10 @@ export class GeneratePageComponent {
       }
 
       const assigns: VoiceAssignment[] = Object.entries(this.voices.assignments()).map(([character, voiceId]) => ({ character, voiceId }))
+      const narratorVoice = this.voices.narratorVoice() || undefined
       const buffers: ArrayBuffer[] = []
 
-      const sub = this.voice.synthesize(parsed, assigns).subscribe({
+      const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
         next: (chunk) => buffers.push(chunk.audio),
         error: (error) => reject(new Error(`Audio synthesis failed: ${error.message}`)),
         complete: () => {

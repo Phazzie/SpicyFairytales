@@ -34,10 +34,17 @@ export interface VoiceAssignment {
   voiceId: string
 }
 
+export interface NarratorVoiceAssignment {
+  voiceId: string
+  name?: string
+}
+
 export interface AudioChunk {
   audio: ArrayBuffer
   text?: string
   timestamp: number
+  segmentType?: 'narration' | 'dialogue' | 'action'
+  character?: string
 }
 
 // Service contracts
@@ -51,6 +58,6 @@ export interface SpeakerParser {
 }
 
 export interface VoiceService {
-  synthesize(story: ParsedStory, assignments?: VoiceAssignment[]): Observable<AudioChunk>
+  synthesize(story: ParsedStory, assignments?: VoiceAssignment[], narratorVoice?: NarratorVoiceAssignment): Observable<AudioChunk>
   listVoices?(): Promise<{ id: string; name: string }[]>
 }

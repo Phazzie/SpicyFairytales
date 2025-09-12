@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
-import { VoiceService, ParsedStory, VoiceAssignment, AudioChunk } from '../shared/contracts';
+import { VoiceService, ParsedStory, VoiceAssignment, AudioChunk, NarratorVoiceAssignment } from '../shared/contracts';
 
 @Injectable()
 export class ElevenLabsVoiceService implements VoiceService {
@@ -8,11 +8,11 @@ export class ElevenLabsVoiceService implements VoiceService {
 
   constructor() {}
 
-  synthesize(story: ParsedStory, assignments?: VoiceAssignment[]): Observable<AudioChunk> {
-    return from(this.generateAudioForStory(story, assignments));
+  synthesize(story: ParsedStory, assignments?: VoiceAssignment[], narratorVoice?: NarratorVoiceAssignment): Observable<AudioChunk> {
+    return from(this.generateAudioForStory(story, assignments, narratorVoice));
   }
 
-  private async *generateAudioForStory(story: ParsedStory, assignments?: VoiceAssignment[]): AsyncGenerator<AudioChunk> {
+  private async *generateAudioForStory(story: ParsedStory, assignments?: VoiceAssignment[], narratorVoice?: NarratorVoiceAssignment): AsyncGenerator<AudioChunk> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
       throw new Error('ELEVENLABS_API_KEY not configured');
@@ -21,23 +21,41 @@ export class ElevenLabsVoiceService implements VoiceService {
     // Create voice assignments if not provided
     const voiceAssignments = assignments || this.createDefaultAssignments(story);
 
-    // Process each dialogue segment
+    // Set default narrator voice if not provided
+    const narratorVoiceAssignment = narratorVoice || this.getDefaultNarratorVoice();
+
+    // Process each segment (dialogue and narration)
     for (const segment of story.segments) {
-      if (segment.type === 'dialogue' && segment.character) {
-        const assignment = voiceAssignments.find(a => a.character === segment.character);
-        if (assignment) {
-          try {
-            const audioData = await this.generateAudioSegment(segment.text, assignment.voiceId);
-            yield {
-              audio: audioData,
-              text: segment.text,
-              timestamp: Date.now()
-            };
-          } catch (error) {
-            console.error(`Failed to generate audio for segment: ${segment.text}`, error);
-            // Continue with next segment
-          }
+      try {
+        let voiceId: string;
+        let segmentType: string;
+
+        if (segment.type === 'dialogue' && segment.character) {
+          // Handle character dialogue
+          const assignment = voiceAssignments.find(a => a.character === segment.character);
+          if (!assignment) continue;
+          voiceId = assignment.voiceId;
+          segmentType = 'dialogue';
+        } else if (segment.type === 'narration') {
+          // Handle narration with dedicated narrator voice
+          voiceId = narratorVoiceAssignment.voiceId;
+          segmentType = 'narration';
+        } else {
+          // Skip action segments or other types
+          continue;
         }
+
+        const audioData = await this.generateAudioSegment(segment.text, voiceId);
+        yield {
+          audio: audioData,
+          text: segment.text,
+          timestamp: Date.now(),
+          segmentType: segment.type as 'narration' | 'dialogue' | 'action',
+          character: segment.character
+        };
+      } catch (error) {
+        console.error(`Failed to generate audio for segment: ${segment.text}`, error);
+        // Continue with next segment
       }
     }
   }
@@ -75,11 +93,18 @@ export class ElevenLabsVoiceService implements VoiceService {
     return await response.arrayBuffer();
   }
 
+  private getDefaultNarratorVoice(): NarratorVoiceAssignment {
+    // Use a professional, clear voice for narration
+    return {
+      voiceId: '21m00Tcm4TlvDq8ikWAM', // Rachel - clear and professional
+      name: 'Rachel (Narrator)'
+    };
+  }
+
   private createDefaultAssignments(story: ParsedStory): VoiceAssignment[] {
     // Use ElevenLabs voice IDs for different characters
     const voiceIds = [
-      '21m00Tcm4TlvDq8ikWAM', // Rachel (female)
-      'AZnzlk1XvdvUeBnXmlld', // Dom (male)
+      'AZnzlk1XvdvUeBnXmlld', // Dom (male) - skip Rachel since she's narrator
       'EXAVITQu4vr4xnSDxMaL', // Bella (female)
       'ErXwobaYiN019PkySvjV', // Antoni (male)
       'MF3mGyEYCl7XYWbV9V6O', // Elli (female)
