@@ -41,6 +41,11 @@ jobs:
         cd spicy-fairytales
         npm test -- --watch=false --browsers=ChromeHeadless
 
+    - name: Run validation scripts
+      run: |
+        cd spicy-fairytales
+        npm run lint
+
   build:
     runs-on: ubuntu-latest
     needs: test
