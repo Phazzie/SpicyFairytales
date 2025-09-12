@@ -2,7 +2,6 @@ import { Component, Input, Output, EventEmitter, signal, computed, inject } from
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 import { VoiceStore } from '../../stores/voice.store'
-import { VoiceAssignmentService } from '../../services/voice-assignment.service'
 import { ParsedStory, VoiceAssignment, NarratorVoiceAssignment } from '../../shared/contracts'
 
 @Component({
@@ -65,11 +64,11 @@ import { ParsedStory, VoiceAssignment, NarratorVoiceAssignment } from '../../sha
 
         <!-- Smart Assignment Button -->
         <div class="smart-assignment">
-          <button
-            (click)="generateSmartAssignments()"
-            [disabled]="!parsedStory() || isGenerating()"
+                    <button
+            (click)="onRequestSmartAssignments()"
+            [disabled]="!parsedStory() || isGeneratingSmartAssignments()"
             class="smart-btn">
-            {{ isGenerating() ? 'Generating...' : 'Smart Voice Assignment' }}
+            {{ isGeneratingSmartAssignments() ? 'Generating...' : 'Smart Voice Assignment' }}
           </button>
           <p class="help-text">
             AI-powered voice recommendations based on character traits and story context
@@ -253,18 +252,18 @@ import { ParsedStory, VoiceAssignment, NarratorVoiceAssignment } from '../../sha
 })
 export class VoiceAssignmentComponent {
   private voiceStore = inject(VoiceStore)
-  private voiceAssignmentService = inject(VoiceAssignmentService)
 
   @Input() parsedStory = signal<ParsedStory | null>(null)
+  @Input() isGeneratingSmartAssignments = signal(false)
   @Output() assignmentsApplied = new EventEmitter<{
     characterAssignments: VoiceAssignment[]
     narratorVoice: NarratorVoiceAssignment | null
   }>()
   @Output() cancel = new EventEmitter<void>()
+  @Output() requestSmartAssignments = new EventEmitter<string>()
 
   voices = this.voiceStore.voices
   narratorVoice = this.voiceStore.narratorVoice
-  isGenerating = signal(false)
 
   getCharacterVoice(characterName: string): string {
     return this.voiceStore.assignments()[characterName] || ''
@@ -304,32 +303,11 @@ export class VoiceAssignmentComponent {
     this.voiceStore.assignments.set(assignments)
   }
 
-  async generateSmartAssignments() {
+  onRequestSmartAssignments() {
     if (!this.parsedStory()) return
 
-    this.isGenerating.set(true)
-    try {
-      const storyText = this.parsedStory()!.segments.map(s => s.text).join(' ')
-
-      // Generate character voice recommendations
-      const recommendations = await this.voiceAssignmentService.generateSmartAssignments(storyText)
-
-      // Apply character recommendations to store
-      recommendations.forEach(rec => {
-        this.voiceStore.setAssignment(rec.character, rec.recommendedVoiceId)
-      })
-
-      // Generate narrator voice recommendation
-      const narratorRecommendation = this.voiceAssignmentService.recommendNarratorVoice(storyText)
-      this.voiceStore.setNarratorVoice({
-        voiceId: narratorRecommendation.voiceId,
-        name: narratorRecommendation.name
-      })
-    } catch (error) {
-      console.error('Failed to generate smart assignments:', error)
-    } finally {
-      this.isGenerating.set(false)
-    }
+    const storyText = this.parsedStory()!.segments.map(s => s.text).join(' ')
+    this.requestSmartAssignments.emit(storyText)
   }
 
   hasValidAssignments(): boolean {

@@ -16,7 +16,6 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 - **Intelligent Matching**: Matches voices based on age, gender, personality, and role
 - **Confidence Scoring**: Provides confidence levels and alternative recommendations
 - **Manual Override**: Full control with manual voice selection when needed
-- **Narrator Voice Separation**: Dedicated narrator voice for professional storytelling
 - **Smart Narrator Recommendations**: AI selects optimal narrator voice based on story tone and genre
 
 ### 🎵 Professional Audio Synthesis
@@ -53,7 +52,7 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Phazzie/SpicyFairytales.git
-   cd SpicyFairytales/spicy-fairytales
+   cd SpicyFairytales
    ```
 
 2. **Install dependencies**
@@ -105,8 +104,7 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
    - Click "🧠 Smart Assign" for AI-powered voice recommendations
    - Review suggestions with confidence scores and reasoning
    - Accept recommendations or manually adjust voices
-   - **Narrator Voice**: Choose a dedicated narrator voice for professional storytelling
-   - The system automatically recommends the best narrator voice based on your story's tone and genre
+   - **Narrator Voice**: The system automatically recommends the best narrator voice based on your story's tone and genre
 
 4. **Synthesize Audio**:
    - Click "🔊 Synthesize Audio" to create professional voice audio
@@ -252,7 +250,6 @@ The app supports multiple environments:
 - [x] Modern UI with theme support
 - [x] Comprehensive error handling
 - [x] API integration testing
-- [x] **Narrator voice separation with AI recommendations**
 - [x] **Smart narrator voice selection based on story content**
 
 ### 🔄 In Progress

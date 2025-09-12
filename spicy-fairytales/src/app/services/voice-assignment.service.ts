@@ -1,8 +1,22 @@
 import { Injectable, Inject } from '@angular/core'
 import { Observable, from } from 'rxjs'
 import { SPEAKER_PARSER } from '../shared/tokens'
-import type { ParsedStory, VoiceAssignment, NarratorVoiceAssignment } from '../shared/contracts'
+import type {
+  ParsedStory,
+  VoiceAssignment,
+  NarratorVoiceAssignment,
+  VoiceScoringStrategy,
+  NarratorScoringStrategy,
+  Voice,
+  StoryAnalysis
+} from '../shared/contracts'
 import { VoiceStore } from '../stores/voice.store'
+import {
+  AGE_SCORING_STRATEGY,
+  GENDER_SCORING_STRATEGY,
+  ROLE_SCORING_STRATEGY,
+  NARRATOR_SCORING_STRATEGY
+} from '../shared/tokens'
 
 export interface CharacterTraits {
   name: string
@@ -28,7 +42,11 @@ export interface VoiceRecommendation {
 export class VoiceAssignmentService {
   constructor(
     @Inject(SPEAKER_PARSER) private parser: any,
-    private voiceStore: VoiceStore
+    private voiceStore: VoiceStore,
+    @Inject(AGE_SCORING_STRATEGY) private ageStrategy: VoiceScoringStrategy,
+    @Inject(GENDER_SCORING_STRATEGY) private genderStrategy: VoiceScoringStrategy,
+    @Inject(ROLE_SCORING_STRATEGY) private roleStrategy: VoiceScoringStrategy,
+    @Inject(NARRATOR_SCORING_STRATEGY) private narratorStrategy: NarratorScoringStrategy
   ) {}
 
   /**
@@ -197,90 +215,108 @@ export class VoiceAssignmentService {
   }
 
   /**
-   * Score how well a voice matches a character
-   * Designed to be extensible for emotion-based scoring
+   * Score how well a voice matches a character using Strategy Pattern
    *
-   * Scoring Algorithm:
-   * - Base score: 5 (neutral starting point)
-   * - Age matching: +2-3 points for strong matches
-   * - Gender matching: +2 points for gender alignment
-   * - Role preferences: +1 point for thematic alignment
-   * - Maximum score: 10 (prevents over-weighting)
+   * ## Architecture Benefits
+   * - Separates scoring concerns into focused strategies
+   * - Reduces cyclomatic complexity from ~20 to ~5
+   * - Enables easy testing and extension of individual strategies
+   * - Maintains clean separation of business logic
    *
-   * Future emotion scoring can be added here by:
-   * 1. Adding emotion parameters to CharacterTraits
-   * 2. Creating emotion-voice compatibility matrix
-   * 3. Incorporating emotional range into scoring
+   * ## Scoring Algorithm
+   * Combines multiple strategy scores with weighted approach:
+   * - Age matching: 40% weight (most important for character authenticity)
+   * - Gender matching: 30% weight (important for character representation)
+   * - Role matching: 30% weight (important for thematic consistency)
+   *
+   * @param voice The voice to evaluate
+   * @param character The character traits to match against
+   * @returns Composite score from 0-10 based on all applicable strategies
    */
-  private scoreVoiceForCharacter(voice: { id: string; name: string }, character: CharacterTraits): number {
-    let score = 5 // Base score - neutral starting point
+  private scoreVoiceForCharacter(voice: Voice, character: CharacterTraits): number {
+    let totalScore = 0
+    let totalWeight = 0
 
-    const voiceName = voice.name.toLowerCase()
-
-    // Age matching algorithm
-    // Prioritizes voices that match character's apparent age
+    // Age scoring (40% weight)
     if (character.age) {
-      if (character.age === 'child' && voiceName.includes('young')) {
-        score += 3 // Strong match for child characters
-      }
-      if (character.age === 'elderly' && voiceName.includes('old')) {
-        score += 3 // Strong match for elderly characters
-      }
-      if (character.age === 'teen' && voiceName.includes('young')) {
-        score += 2 // Moderate match for teen characters
-      }
+      const ageScore = this.ageStrategy.score(voice, character)
+      totalScore += ageScore * 4 // 40% weight
+      totalWeight += 4
     }
 
-    // Gender matching algorithm
-    // Ensures gender-appropriate voice selection
+    // Gender scoring (30% weight)
     if (character.gender) {
-      if (character.gender === 'male' && voiceName.includes('male')) {
-        score += 2 // Gender alignment bonus
-      }
-      if (character.gender === 'female' && voiceName.includes('female')) {
-        score += 2 // Gender alignment bonus
-      }
+      const genderScore = this.genderStrategy.score(voice, character)
+      totalScore += genderScore * 3 // 30% weight
+      totalWeight += 3
     }
 
-    // Role-based preference algorithm
-    // Adds thematic appropriateness based on character role
-    if (character.role === 'protagonist' && voiceName.includes('confident')) {
-      score += 1 // Heroes sound confident
-    }
-    if (character.role === 'antagonist' && voiceName.includes('deep')) {
-      score += 1 // Villains sound deep/menacing
+    // Role scoring (30% weight)
+    if (character.role) {
+      const roleScore = this.roleStrategy.score(voice, character)
+      totalScore += roleScore * 3 // 30% weight
+      totalWeight += 3
     }
 
-    return Math.min(score, 10) // Cap at 10 to prevent over-weighting
+    // If no traits available, return neutral score
+    if (totalWeight === 0) {
+      return 5
+    }
+
+    // Normalize to 0-10 range and scale to match original algorithm expectations
+    const normalizedScore = (totalScore / totalWeight) * 10
+    return Math.min(normalizedScore, 10)
   }
 
   /**
-   * Generate human-readable reasoning for voice recommendation
+   * Generate comprehensive reasoning using Strategy Pattern
+   *
+   * ## Architecture Benefits
+   * - Combines reasoning from multiple focused strategies
+   * - Provides detailed, human-readable explanations
+   * - Maintains separation of reasoning logic
+   *
+   * @param voice The voice being evaluated
+   * @param character The character traits
+   * @returns Combined reasoning from all applicable strategies
    */
-  private generateReasoning(voice: { id: string; name: string }, character: CharacterTraits): string {
+  private generateReasoning(voice: Voice, character: CharacterTraits): string {
     const reasons: string[] = []
 
+    // Collect reasoning from each applicable strategy
     if (character.age) {
-      reasons.push(`Age: ${character.age}`)
-    }
-    if (character.gender) {
-      reasons.push(`Gender: ${character.gender}`)
-    }
-    if (character.role) {
-      reasons.push(`Role: ${character.role}`)
+      reasons.push(this.ageStrategy.getReasoning(voice, character))
     }
 
-    const traits = reasons.length > 0 ? reasons.join(', ') : 'General suitability'
-    return `${voice.name} - ${traits}`
+    if (character.gender) {
+      reasons.push(this.genderStrategy.getReasoning(voice, character))
+    }
+
+    if (character.role) {
+      reasons.push(this.roleStrategy.getReasoning(voice, character))
+    }
+
+    // If no specific traits, provide general reasoning
+    if (reasons.length === 0) {
+      return `${voice.name} is suitable for general character roles`
+    }
+
+    return reasons.join('. ')
   }
 
   /**
-   * Recommend narrator voices based on story tone and genre
-  private analyzeStoryForNarrator(storyText: string): {
-    tone: 'formal' | 'casual' | 'dramatic' | 'whimsical'
-    genre: string[]
-    length: 'short' | 'medium' | 'long'
-  } {
+   * Analyze story for narrator voice selection using Strategy Pattern
+   *
+   * ## Architecture Benefits
+   * - Provides structured story analysis for narrator strategy
+   * - Separates analysis logic from scoring logic
+   * - Enables easy testing of story analysis
+   * - Returns proper StoryAnalysis contract
+   *
+   * @param storyText The full story text to analyze
+   * @returns Structured analysis of story characteristics
+   */
+  private analyzeStoryForNarrator(storyText: string): StoryAnalysis {
     const text = storyText.toLowerCase()
 
     // Tone analysis
@@ -311,68 +347,49 @@ export class VoiceAssignmentService {
     if (wordCount < 500) length = 'short'
     else if (wordCount > 1500) length = 'long'
 
-    return { tone, genre: genres, length }
+    return {
+      tone,
+      genre: genres,
+      length,
+      wordCount
+    }
   }
 
   /**
-   * Score voice suitability for narration
+   * Score voice suitability for narration using Strategy Pattern
+   *
+   * ## Architecture Benefits
+   * - Delegates narrator scoring to specialized strategy
+   * - Reduces complexity in main service
+   * - Enables easy testing of narrator logic
+   * - Maintains clean separation of concerns
+   *
+   * @param voice The voice to evaluate for narration
+   * @param analysis The story analysis containing tone, genre, and length
+   * @returns Score from 0-10 indicating narrator suitability
    */
-  private scoreVoiceForNarrator(
-    voice: { id: string; name: string },
-    analysis: { tone: string; genre: string[]; length: string }
-  ): number {
-    let score = 5 // Base score
-    const voiceName = voice.name.toLowerCase()
+  private scoreVoiceForNarrator(voice: Voice, analysis: StoryAnalysis): number {
+    // Use the narrator strategy to score the voice
+    const strategyScore = this.narratorStrategy.score(voice, analysis)
 
-    // Tone matching
-    if (analysis.tone === 'whimsical' && (voiceName.includes('young') || voiceName.includes('bella'))) {
-      score += 3 // Whimsical stories need engaging, youthful narrators
-    } else if (analysis.tone === 'dramatic' && (voiceName.includes('deep') || voiceName.includes('arnold'))) {
-      score += 3 // Dramatic stories benefit from deep, authoritative voices
-    } else if (analysis.tone === 'formal' && (voiceName.includes('rachel') || voiceName.includes('professional'))) {
-      score += 3 // Formal stories need clear, professional narration
-    } else if (analysis.tone === 'casual' && (voiceName.includes('josh') || voiceName.includes('antoni'))) {
-      score += 2 // Casual stories work well with relaxed voices
-    }
-
-    // Genre preferences
-    if (analysis.genre.includes('fantasy') && voiceName.includes('bella')) {
-      score += 2 // Bella works well for fantasy narration
-    }
-    if (analysis.genre.includes('romance') && voiceName.includes('rachel')) {
-      score += 2 // Rachel is good for romantic storytelling
-    }
-
-    // Length considerations
-    if (analysis.length === 'long' && (voiceName.includes('rachel') || voiceName.includes('bella'))) {
-      score += 1 // Clear voices work better for longer stories
-    }
-
-    return Math.min(score, 10) // Cap at 10
+    // Scale to match original 0-10 range
+    return strategyScore * 10
   }
 
   /**
-   * Generate reasoning for narrator voice recommendation
+   * Generate reasoning for narrator voice recommendation using Strategy Pattern
+   *
+   * ## Architecture Benefits
+   * - Delegates reasoning generation to specialized strategy
+   * - Provides detailed, context-aware explanations
+   * - Maintains separation of narrator reasoning logic
+   *
+   * @param voice The voice being evaluated
+   * @param analysis The story analysis
+   * @returns Human-readable reasoning for narrator suitability
    */
-  private generateNarratorReasoning(
-    voice: { id: string; name: string },
-    analysis: { tone: string; genre: string[]; length: string }
-  ): string {
-    const reasons: string[] = []
-
-    if (analysis.tone) {
-      reasons.push(`${analysis.tone} tone`)
-    }
-
-    if (analysis.genre.length > 0) {
-      reasons.push(`${analysis.genre.join(', ')} genre`)
-    }
-
-    if (analysis.length) {
-      reasons.push(`${analysis.length} story`)
-    }
-
-    return `${voice.name} - Perfect for ${reasons.join(', ')}`
+  private generateNarratorReasoning(voice: Voice, analysis: StoryAnalysis): string {
+    return this.narratorStrategy.getReasoning(voice, analysis)
   }
 
     /**

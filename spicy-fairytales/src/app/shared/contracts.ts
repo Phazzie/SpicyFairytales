@@ -39,6 +39,50 @@ export interface NarratorVoiceAssignment {
   name?: string
 }
 
+export interface VoiceRecommendation {
+  character: string
+  recommendedVoiceId: string
+  confidence: number
+  reasoning?: string
+  alternatives?: { voiceId: string; reasoning: string }[]
+}
+
+// Character traits for voice scoring
+export interface CharacterTraits {
+  name: string
+  age?: 'child' | 'teen' | 'young-adult' | 'adult' | 'middle-aged' | 'elderly'
+  gender?: 'male' | 'female' | 'neutral'
+  personality?: string[]
+  role?: 'protagonist' | 'antagonist' | 'sidekick' | 'mentor' | 'villain' | 'neutral'
+  description?: string
+  emotionalRange?: string[]
+  context?: string
+}
+
+// Voice Scoring Strategy Contracts
+export interface VoiceScoringStrategy {
+  score(voice: Voice, character: CharacterTraits): number
+  getReasoning(voice: Voice, character: CharacterTraits): string
+}
+
+export interface NarratorScoringStrategy {
+  score(voice: Voice, storyAnalysis: StoryAnalysis): number
+  getReasoning(voice: Voice, storyAnalysis: StoryAnalysis): string
+}
+
+export interface StoryAnalysis {
+  tone: 'formal' | 'casual' | 'dramatic' | 'whimsical'
+  genre: string[]
+  length: 'short' | 'medium' | 'long'
+  wordCount: number
+}
+
+// Voice interface for strategies
+export interface Voice {
+  id: string
+  name: string
+}
+
 export interface AudioChunk {
   audio: ArrayBuffer
   text?: string

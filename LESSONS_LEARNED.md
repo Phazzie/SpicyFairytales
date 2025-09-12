@@ -2,6 +2,33 @@
 
 A running log of insights, decisions, and retro items. Keep entries short and actionable. Add new sections per milestone.
 
+## 2025-09-12 — Strategy Pattern Refactoring & Testing Complete
+
+### Major Architecture Achievement
+- **75% Complexity Reduction Validated**: Strategy Pattern implementation successfully reduced cyclomatic complexity from ~20 to ~5 per method while maintaining full functionality through comprehensive testing.
+- **Testing Validates Design**: The ability to easily mock individual strategies in VoiceAssignmentService tests proves the Strategy Pattern achieved its goal of separation of concerns.
+- **Pure Functions Enable Deterministic Testing**: All strategies implemented as pure functions made testing straightforward with predictable input/output validation.
+
+### Testing Strategy Insights
+- **Test-Driven Validation Over Test-Driven Development**: When refactoring existing code, writing tests to validate current behavior is more effective than trying to guess expected behavior.
+- **Contract Testing Prevents Integration Issues**: Testing against the actual `StoryAnalysis` interface caught missing properties (like `wordCount`) early in the testing phase.
+- **Mock Strategy Effectively Tests Orchestration**: Using jasmine spies for individual strategies allowed comprehensive testing of the service's orchestration logic without depending on strategy implementations.
+
+### TypeScript & Build Process
+- **Compilation Success ≠ Test Success**: TypeScript compilation with zero errors doesn't guarantee test expectations match actual implementation - both are needed for confidence.
+- **Interface Changes Cascade**: Adding `wordCount` to `StoryAnalysis` required updates across multiple test files, emphasizing the importance of comprehensive interface design up front.
+- **Dev Container Testing**: Headless Chrome configuration was crucial for running tests in containerized development environments.
+
+### Dependency Injection Patterns
+- **DI Tokens Enable Strategy Injection**: Using Angular DI tokens (`AGE_SCORING_STRATEGY`, etc.) made strategy injection clean and testable.
+- **Service Registration Strategy**: Registering all strategies in `app.config.ts` provides centralized configuration while maintaining modular implementation.
+- **Mock vs Real Strategy Boundary**: Clear separation between strategy interfaces and implementations enables easy mocking for unit tests.
+
+### Development Workflow Effectiveness
+- **Incremental Phases Reduce Risk**: Breaking the refactoring into 5 phases (Foundation → Strategies → Service → DI → Testing) allowed validation at each step.
+- **Build Verification Between Phases**: Running `ng build` after each phase caught integration issues early rather than accumulating technical debt.
+- **Test Structure Mirrors Implementation Structure**: Organizing tests to mirror the strategy directory structure makes the codebase more maintainable.
+
 ## 2025-09-11 — Angular Alignment Pass
 - React/Vite assumptions in docs caused confusion once Angular workspace landed; centralize tech choices early and keep docs in sync.
 - Define DI tokens for major seams (story, parser, voice) up front; simplifies swapping mocks/real services.

@@ -1,3 +1,23 @@
+/**
+ * @fileoverview Component for playing back generated audio.
+ *
+ * ## Architecture Context
+ * This component is responsible for rendering an HTML5 audio player. It is a "dumb"
+ * component that receives the audio URL and other state information as inputs.
+ *
+ * ## Information Flow
+ * 1. The parent component (e.g., `GeneratePage`) passes an audio URL to this
+ *    component via the `audioUrl` input.
+ * 2. It also receives a boolean `isSynthesizing` to know when to display a
+ *    loading state.
+ * 3. The component simply binds these inputs to the template to control the
+ *    audio player's visibility and source.
+ *
+ * ## Contract Compliance
+ * - This component adheres to the "Dumb UI" principle, containing no business logic.
+ * - All data is received via `@Input()` properties.
+ */
+
 import { Component, Inject, OnDestroy, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { StoryStore } from '../../stores/story.store'
