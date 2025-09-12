@@ -1,5 +1,16 @@
 /**
- * Form component for configuring story generation parameters and options.
+ * Primary user interface for configuring story generation parameters and initiating creation.
+ * 
+ * Reactive form component that collects user preferences and transforms them into StoryOptions
+ * for the generation pipeline. Features character type selection, genre/tone configuration,
+ * spice level adjustment, and custom theme/idea input with real-time validation.
+ * 
+ * INPUT: User form interactions (character type, genre, tone, length, themes, custom ideas)
+ * OUTPUT: StoryOptions emitted via onGenerate event to parent components
+ * DEPENDENCIES: Angular Reactive Forms for validation, CommonModule for template directives
+ * INTEGRATIONS: Consumed by story generation page, outputs to story generation hooks
+ * VALIDATION: Required fields for core options, optional fields for enhanced customization
+ * UX: Multi-section layout with visual character selection and progressive disclosure
  */
 import { Component, EventEmitter, Output, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'

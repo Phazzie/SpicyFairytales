@@ -1,5 +1,16 @@
 /**
- * Component for displaying AI-powered voice recommendations based on character analysis.
+ * Intelligent voice recommendation component leveraging character trait analysis.
+ * 
+ * AI-powered recommendation engine that analyzes character traits (age, gender, personality,
+ * role) to suggest optimal voice assignments. Provides confidence scoring, reasoning explanations,
+ * and alternative options to help users make informed voice selection decisions.
+ * 
+ * INPUT: VoiceRecommendation[] (character analysis with suggested voices and confidence scores)
+ * OUTPUT: Voice selection events, recommendation acceptance/rejection, alternative choice events
+ * DEPENDENCIES: CommonModule for template directives, VoiceRecommendation interface
+ * INTEGRATIONS: Consumed by character voice management components, feeds selections to VoiceStore
+ * ALGORITHM: Trait-based matching with confidence scoring, conflict resolution, alternative ranking
+ * UX: Visual confidence indicators, reasoning explanations, one-click acceptance, manual override options
  */
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { CommonModule } from '@angular/common'

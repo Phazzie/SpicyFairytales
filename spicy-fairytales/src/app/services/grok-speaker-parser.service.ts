@@ -1,5 +1,16 @@
 /**
- * AI-powered speaker parser using Grok to extract dialogue and character assignments from stories.
+ * AI-powered speaker parsing service that transforms raw story text into structured dialogue segments.
+ * 
+ * Critical pipeline component that bridges story generation and voice synthesis by extracting
+ * character dialogue, narration, and action sequences from unstructured text. Uses Grok AI to
+ * intelligently identify speakers and categorize story segments for voice assignment.
+ * 
+ * INPUT: Raw story text (string) from StoryService
+ * OUTPUT: ParsedStory with structured segments (narration/dialogue/action) and character metadata
+ * DEPENDENCIES: Grok API for AI-powered text analysis, environment configuration for API keys
+ * INTEGRATIONS: Receives text from HttpStoryService, outputs structured data to VoiceAssignmentService
+ * CRITICAL: The parser-synthesizer contract is the most fragile integration point - changes to
+ * ParsedStory structure will break voice synthesis pipeline
  */
 import { Injectable } from '@angular/core';
 import { SpeakerParser, ParsedStory, ParsedStorySegment } from '../shared/contracts';

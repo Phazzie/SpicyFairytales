@@ -1,5 +1,16 @@
 /**
- * ElevenLabs voice synthesis service for converting text to natural speech audio.
+ * ElevenLabs voice synthesis service implementing the final stage of the audio generation pipeline.
+ * 
+ * Transforms structured story segments (ParsedStory) into natural speech audio using ElevenLabs'
+ * text-to-speech API. Handles character voice assignments, emotion-aware synthesis, and streaming
+ * audio chunk generation for real-time playback.
+ * 
+ * INPUT: ParsedStory (structured segments), VoiceAssignment[] (character-to-voice mappings), NarratorVoiceAssignment
+ * OUTPUT: Observable<AudioChunk> streaming synthesized audio with metadata (character, timestamp, segment type)
+ * DEPENDENCIES: ElevenLabs API for voice synthesis, environment configuration for API keys
+ * INTEGRATIONS: Final pipeline stage - consumes ParsedStory from speaker parser, provides audio to UI components
+ * PERFORMANCE: Processes segments sequentially to maintain narrative flow, supports concurrent synthesis
+ * for non-sequential segments
  */
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';

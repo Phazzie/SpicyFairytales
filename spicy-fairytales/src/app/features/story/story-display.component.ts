@@ -1,5 +1,16 @@
 /**
- * Component for displaying generated story content with formatting and structure.
+ * Display component for rendering generated story content with interactive features.
+ * 
+ * Reactive presentation component that displays streaming story text with copy functionality
+ * and visual formatting. Consumes story content from the StoryStore and provides user
+ * interactions for content management and sharing.
+ * 
+ * INPUT: text (story content string), reactive updates from story generation pipeline
+ * OUTPUT: Formatted story display, clipboard copy functionality, user interaction events
+ * DEPENDENCIES: Angular signals for reactive updates, CommonModule for template directives
+ * INTEGRATIONS: Consumes story text from StoryStore, displays real-time generation progress
+ * FEATURES: Copy to clipboard, empty state handling, text formatting and structure
+ * ACCESSIBILITY: Keyboard navigation, screen reader support, visual feedback for interactions
  */
 import { Component, Input, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'

@@ -1,5 +1,16 @@
 /**
- * Main page component for story generation workflow and content management.
+ * Primary application page orchestrating the complete story generation and audio synthesis workflow.
+ * 
+ * Central coordinator component that manages the entire pipeline from user input to audio output.
+ * Integrates story generation, speaker parsing, voice assignment, and audio synthesis into a
+ * cohesive user experience with step-by-step workflow management.
+ * 
+ * INPUT: User interactions from story form, voice assignments, playback controls
+ * OUTPUT: Complete story generation workflow, integrated audio experience, export capabilities
+ * DEPENDENCIES: All core services (StoryService, SpeakerParser, VoiceService), state stores
+ * INTEGRATIONS: Orchestrates all pipeline components, manages service interactions and data flow
+ * WORKFLOW: Story form → generation → parsing → voice assignment → synthesis → playback/export
+ * ARCHITECTURE: Implements the full data pipeline as defined in contracts.ts
  */
 import { Component, Inject } from '@angular/core'
 import { CommonModule } from '@angular/common'

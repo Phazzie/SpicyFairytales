@@ -1,5 +1,16 @@
 /**
- * Voice-specific audio player for testing and previewing voice samples.
+ * Lightweight audio player component for voice sample preview and testing.
+ * 
+ * Specialized audio player for previewing individual voice samples during voice selection
+ * and assignment processes. Provides simple audio controls for testing voice quality and
+ * character fit before final assignment.
+ * 
+ * INPUT: src (audio URL or blob URL), audio sample data
+ * OUTPUT: Audio playback controls, sample preview functionality
+ * DEPENDENCIES: CommonModule for template directives, HTML5 audio element
+ * INTEGRATIONS: Used within voice selection components, voice management interfaces
+ * FEATURES: Simple play controls, sample audio handling, empty state display
+ * PURPOSE: Voice quality assessment, character voice matching, user preview before synthesis
  */
 import { Component, Input } from '@angular/core'
 import { CommonModule } from '@angular/common'

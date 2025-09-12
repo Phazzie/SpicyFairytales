@@ -1,5 +1,16 @@
 /**
- * Express server for server-side rendering (SSR) of the Angular application.
+ * Express.js server providing Angular Universal SSR with static file serving and production hosting.
+ * 
+ * Production-ready Node.js server that serves the Angular application with server-side rendering
+ * capabilities. Handles static asset serving, SSR HTML generation, and API route proxying
+ * for optimal performance and SEO in production environments.
+ * 
+ * INPUT: HTTP requests, static file requests, SSR rendering requests
+ * OUTPUT: Server-rendered HTML pages, static assets, API responses, performance-optimized delivery
+ * DEPENDENCIES: Express.js, Angular Universal SSR, Node.js platform, static file serving
+ * INTEGRATIONS: Hosts the complete application, serves SSR content, handles production deployment
+ * FEATURES: Static asset caching, SSR with hydration, production optimization, security headers
+ * DEPLOYMENT: Production server for hosting, scaling, and delivering the application to users
  */
 import {
   AngularNodeAppEngine,

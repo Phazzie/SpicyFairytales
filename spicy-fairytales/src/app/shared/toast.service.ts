@@ -1,5 +1,16 @@
 /**
- * Service for displaying temporary notification messages to users.
+ * Centralized notification service for user feedback and system status communication.
+ * 
+ * Manages application-wide toast notifications for user feedback, error reporting, and
+ * status updates. Provides programmatic notification creation with auto-dismissal,
+ * action buttons, and accessibility support for comprehensive user communication.
+ * 
+ * INPUT: Notification requests (type, title, message, duration, actions)
+ * OUTPUT: Toast notification queue, display events, dismissal events
+ * DEPENDENCIES: RxJS for reactive notification management, Angular DI for global availability
+ * INTEGRATIONS: Consumed by all components for user feedback, displayed by toast container
+ * FEATURES: Multiple notification types, auto-dismissal, manual actions, queue management
+ * ACCESSIBILITY: Screen reader announcements, keyboard navigation, focus management
  */
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';

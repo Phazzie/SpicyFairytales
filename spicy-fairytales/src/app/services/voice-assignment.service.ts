@@ -1,5 +1,16 @@
 /**
- * Voice assignment service that matches characters to appropriate voice actors.
+ * Intelligent voice assignment service that matches story characters to appropriate voice actors.
+ * 
+ * Analyzes parsed story characters and their traits (age, gender, personality, role) to recommend
+ * optimal voice assignments from the ElevenLabs voice library. Ensures narrative consistency by
+ * avoiding voice conflicts and maintaining character distinctiveness.
+ * 
+ * INPUT: ParsedStory (character metadata and story segments)
+ * OUTPUT: VoiceAssignment[] (character-to-voice mappings), NarratorVoiceAssignment
+ * DEPENDENCIES: VoiceStore for available voices, SpeakerParser for character analysis
+ * INTEGRATIONS: Bridges speaker parsing and voice synthesis, consumed by voice management UI components
+ * ALGORITHM: Trait-based matching considering age, gender, personality compatibility and voice uniqueness
+ * FALLBACK: Provides default voice assignments when character traits are ambiguous
  */
 import { Injectable, Inject } from '@angular/core'
 import { Observable, from } from 'rxjs'

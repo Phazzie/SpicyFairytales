@@ -1,5 +1,16 @@
 /**
- * Reactive store for managing voice assignments and audio synthesis state.
+ * Reactive state store managing voice assignments and audio synthesis configuration.
+ * 
+ * Centralizes voice management for the audio generation pipeline, tracking available voices,
+ * character-to-voice assignments, and narrator voice selection. Provides computed properties
+ * for validation and UI state management with reactive updates.
+ * 
+ * INPUT: VoiceInfo[] (available voices from ElevenLabs), character assignments, narrator selection
+ * OUTPUT: Reactive signals for voices, assignments, narratorVoice, and computed validation states
+ * DEPENDENCIES: Angular signals for reactive state, NarratorVoiceAssignment contract
+ * INTEGRATIONS: Consumed by voice management UI components, updated by voice assignment service
+ * VALIDATION: Computed properties ensure all characters have voice assignments before synthesis
+ * PERSISTENCE: Maintains assignment state across UI navigation and component lifecycle
  */
 import { Injectable, computed, signal } from '@angular/core'
 import { NarratorVoiceAssignment } from '../shared/contracts'

@@ -1,5 +1,16 @@
 /**
- * HTTP interceptor for handling authentication, error handling, and request/response processing.
+ * HTTP interceptor pipeline managing authentication, error handling, and API request/response processing.
+ * 
+ * Centralized HTTP middleware providing authentication header injection, error handling,
+ * logging, and request/response transformation for all API communications. Ensures consistent
+ * API interactions across story generation, speaker parsing, and voice synthesis services.
+ * 
+ * INPUT: HTTP requests from all services, authentication tokens, error conditions
+ * OUTPUT: Modified HTTP requests with auth headers, standardized error responses, request logs
+ * DEPENDENCIES: Angular HTTP client, authentication service, error handling utilities
+ * INTEGRATIONS: Applied to all HTTP requests from StoryService, SpeakerParser, VoiceService
+ * FEATURES: Bearer token injection, error response standardization, request/response logging
+ * SECURITY: Handles API key management, request sanitization, error information filtering
  */
 import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http'
 import { inject } from '@angular/core'

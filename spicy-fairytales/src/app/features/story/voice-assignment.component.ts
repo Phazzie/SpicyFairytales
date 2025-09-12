@@ -1,5 +1,16 @@
 /**
- * Component for assigning voice actors to story characters and managing voice settings.
+ * Interactive voice assignment interface for mapping story characters to voice actors.
+ * 
+ * Bridges the gap between story parsing and voice synthesis by providing user control over
+ * character voice assignments. Features intelligent voice recommendations, narrator selection,
+ * and real-time validation to ensure complete voice coverage before audio generation.
+ * 
+ * INPUT: ParsedStory (characters and metadata), available voices from VoiceStore
+ * OUTPUT: VoiceAssignment[] and NarratorVoiceAssignment via assignment completion events
+ * DEPENDENCIES: VoiceStore for state management, VoiceAssignmentService for recommendations
+ * INTEGRATIONS: Receives ParsedStory from speaker parser, outputs assignments to voice synthesis
+ * FEATURES: Smart voice recommendations, manual override capability, narrator voice selection
+ * VALIDATION: Ensures all characters have voice assignments before enabling audio generation
  */
 import { Component, Input, Output, EventEmitter, signal, computed, inject } from '@angular/core'
 import { CommonModule } from '@angular/common'

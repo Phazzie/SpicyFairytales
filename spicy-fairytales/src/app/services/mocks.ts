@@ -1,5 +1,16 @@
 /**
- * Mock implementations of core services for development and testing without API costs.
+ * Mock service implementations enabling cost-free development and testing of the story generation pipeline.
+ * 
+ * Complete mock implementations of all core services (StoryService, SpeakerParser, VoiceService)
+ * that simulate real API behavior without external costs. Enables the mock-first development
+ * workflow by providing realistic data and timing patterns for UI development and testing.
+ * 
+ * INPUT: Same interfaces as real services - StoryOptions, story text, voice assignments
+ * OUTPUT: Simulated API responses with realistic timing, sample data, and error conditions
+ * DEPENDENCIES: RxJS for reactive streams, contracts for interface compliance
+ * INTEGRATIONS: Drop-in replacements for real services, controlled by environment configuration
+ * BENEFITS: Zero API costs during development, predictable test data, offline development capability
+ * ARCHITECTURE: Maintains exact interface compliance with real services for seamless switching
  */
 import { Observable, concat, of, timer, map } from 'rxjs'
 import type {

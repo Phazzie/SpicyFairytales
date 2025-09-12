@@ -1,5 +1,16 @@
 /**
- * Loading skeleton component for displaying placeholder content during async operations.
+ * Animated loading skeleton component providing visual feedback during content loading states.
+ * 
+ * Improves user experience by displaying placeholder content with animated loading effects
+ * while async operations complete. Configurable skeleton layouts match expected content
+ * structure and reduce perceived loading times with smooth transitions.
+ * 
+ * INPUT: type (skeleton layout variant), items (number of placeholder elements), configuration
+ * OUTPUT: Animated loading placeholders, smooth content transitions, loading state indication
+ * DEPENDENCIES: CommonModule for template directives, CSS animations for visual effects
+ * INTEGRATIONS: Used throughout UI components during async operations and data loading
+ * FEATURES: Multiple skeleton types, configurable layouts, smooth animations, accessibility labels
+ * UX: Reduces perceived loading time, maintains layout stability, provides loading context
  */
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
