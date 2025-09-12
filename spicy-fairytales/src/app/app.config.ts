@@ -1,3 +1,17 @@
+/**
+ * Primary Angular application configuration defining the dependency injection container and providers.
+ * 
+ * Central bootstrap configuration that establishes the application's service architecture,
+ * routing, and core Angular features. Implements the mock-first development workflow by
+ * conditionally binding service interfaces to mock or real implementations based on environment.
+ * 
+ * INPUT: Environment configuration, service implementations, Angular core providers
+ * OUTPUT: Configured application with DI container, router, HTTP client, and service bindings
+ * DEPENDENCIES: Angular core, router, HTTP client, all service implementations and mocks
+ * INTEGRATIONS: Bootstrap point for entire application, consumed by main.ts
+ * ARCHITECTURE: Implements dependency inversion with service abstraction, enables environment-based service selection
+ * CRITICAL: Service provider bindings must match contracts.ts interfaces for type safety
+ */
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 

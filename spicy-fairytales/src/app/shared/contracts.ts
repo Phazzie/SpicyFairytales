@@ -1,5 +1,16 @@
 /**
- * Shared contracts for service seams used across the Angular app.
+ * Core data contracts and service interfaces defining the application's architectural boundaries.
+ * 
+ * This file serves as the single source of truth for all data structures flowing through the
+ * story generation pipeline: StoryOptions → StoryService → Raw Story → SpeakerParser → 
+ * ParsedStory → VoiceService → AudioChunks.
+ * 
+ * INPUT: StoryOptions (user preferences), Raw story text
+ * OUTPUT: ParsedStory (structured segments), AudioChunk (synthesized audio)
+ * DEPENDENCIES: RxJS Observable for reactive data flow
+ * INTEGRATIONS: All services must implement these interfaces to ensure type safety and
+ * consistent data flow across the pipeline. UI components depend only on these contracts,
+ * never on concrete service implementations.
  */
 import { Observable } from 'rxjs'
 export interface StoryOptions {

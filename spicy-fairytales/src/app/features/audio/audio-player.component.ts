@@ -1,3 +1,17 @@
+/**
+ * Comprehensive audio player for synthesized story playback with streaming audio support.
+ * 
+ * Final consumer component in the audio generation pipeline that orchestrates voice synthesis
+ * and provides playback controls. Handles streaming audio chunks, playback state management,
+ * and user interactions for story audio consumption.
+ * 
+ * INPUT: ParsedStory from StoryStore, VoiceAssignments from VoiceStore, streaming AudioChunks
+ * OUTPUT: Audio playback, user control events, playback state updates
+ * DEPENDENCIES: VoiceService for synthesis, StoryStore and VoiceStore for content and assignments
+ * INTEGRATIONS: Final pipeline stage consuming all previous components' outputs
+ * FEATURES: Play/pause controls, streaming audio handling, chunk-based playback, error recovery
+ * PERFORMANCE: Efficient audio buffer management, progressive playback during synthesis
+ */
 import { Component, Inject, OnDestroy, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { StoryStore } from '../../stores/story.store'

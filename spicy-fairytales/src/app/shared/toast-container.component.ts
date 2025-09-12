@@ -1,3 +1,17 @@
+/**
+ * Visual toast notification container with animated display and user interaction support.
+ * 
+ * Presentation component that renders toast notifications from the ToastService with
+ * animated entry/exit transitions, user interaction handling, and accessibility support.
+ * Manages notification positioning, timing, and dismissal behaviors.
+ * 
+ * INPUT: Toast notifications from ToastService, user interaction events
+ * OUTPUT: Visual notification display, user dismissal actions, animation triggers
+ * DEPENDENCIES: ToastService for notification data, CommonModule for template directives
+ * INTEGRATIONS: Displays notifications from all application components via ToastService
+ * FEATURES: Animated transitions, manual dismissal, auto-timeout, stacked display
+ * ACCESSIBILITY: Proper ARIA roles, keyboard dismissal, screen reader announcements
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';

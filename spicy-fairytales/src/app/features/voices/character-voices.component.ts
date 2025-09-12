@@ -1,3 +1,17 @@
+/**
+ * Advanced character voice management interface with intelligent assignment capabilities.
+ * 
+ * Comprehensive voice management component that coordinates character analysis, voice
+ * recommendations, and manual assignment overrides. Integrates smart voice matching
+ * algorithms with user control to optimize character voice assignments for narrative quality.
+ * 
+ * INPUT: ParsedStory characters from StoryStore, available voices from VoiceService
+ * OUTPUT: Complete voice assignments, narrator voice selection, assignment validation
+ * DEPENDENCIES: VoiceStore and StoryStore for state, VoiceAssignmentService for recommendations
+ * INTEGRATIONS: Central voice management hub connecting parsing, assignment, and synthesis stages
+ * FEATURES: Smart recommendations, manual overrides, narrator voice selection, validation feedback
+ * INTELLIGENCE: Character trait analysis, voice conflict resolution, assignment optimization
+ */
 import { Component, Inject, effect, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VoiceStore } from '../../stores/voice.store'

@@ -1,3 +1,17 @@
+/**
+ * Application-wide theme management service handling dark/light mode with system preference detection.
+ * 
+ * Centralized theme management system that coordinates visual appearance across the application.
+ * Handles user preferences, system theme detection, persistence, and real-time theme switching
+ * with SSR compatibility and accessibility support.
+ * 
+ * INPUT: User theme preferences, system theme changes, preference storage
+ * OUTPUT: Current theme state, theme change events, CSS class updates
+ * DEPENDENCIES: Angular platform detection for SSR, RxJS for reactive state management
+ * INTEGRATIONS: Consumed by theme toggle component, applied globally via CSS classes
+ * FEATURES: Auto system detection, manual override, persistent preferences, SSR compatibility
+ * ACCESSIBILITY: Respects system accessibility preferences, provides theme context for screen readers
+ */
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';

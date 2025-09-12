@@ -1,3 +1,16 @@
+/**
+ * HTTP-based story generation service implementing the StoryService contract using Grok AI API.
+ * 
+ * This service is the first stage in the story generation pipeline, converting user preferences
+ * (StoryOptions) into streaming narrative text. Uses Server-Sent Events for real-time story
+ * generation with the x.ai Grok API endpoint.
+ * 
+ * INPUT: StoryOptions (genre, tone, length, themes, character type, spicy level)
+ * OUTPUT: Observable<string> streaming story chunks as they're generated
+ * DEPENDENCIES: Angular HttpClient for API communication, RxJS for reactive streams
+ * INTEGRATIONS: Consumed by story generation hooks, feeds into GrokSpeakerParser for dialogue extraction
+ * ERROR HANDLING: Throws descriptive errors for API failures, missing API keys, and network issues
+ */
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { StoryService, StoryOptions } from '../shared/contracts';

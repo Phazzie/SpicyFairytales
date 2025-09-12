@@ -1,3 +1,17 @@
+/**
+ * Interactive theme toggle component for dark/light mode switching with persistent preferences.
+ * 
+ * User interface component providing theme switching functionality with visual feedback and
+ * state persistence. Integrates with ThemeService to manage application-wide theme state
+ * and provides accessible theme switching controls.
+ * 
+ * INPUT: User click interactions, theme change events from ThemeService
+ * OUTPUT: Theme toggle actions, visual state updates, accessibility announcements
+ * DEPENDENCIES: ThemeService for theme management, CommonModule for template directives
+ * INTEGRATIONS: Consumed by application layout, integrates with global theme system
+ * FEATURES: Dark/light mode toggle, visual state indicators, keyboard accessibility
+ * PERSISTENCE: Automatic preference saving, theme restoration on page load
+ */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
