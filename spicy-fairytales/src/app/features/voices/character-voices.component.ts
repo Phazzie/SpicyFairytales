@@ -1,12 +1,11 @@
-import { Component, Inject, effect, signal } from '@angular/core'
+import { Component, Inject, effect, signal, Input, Output, EventEmitter } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { VoiceStore } from '../../stores/voice.store'
 import { StoryStore } from '../../stores/story.store'
 import { VOICE_SERVICE } from '../../shared/tokens'
 import type { VoiceService } from '../../shared/contracts'
-import { VoiceAssignmentService, VoiceRecommendation } from '../../services/voice-assignment.service'
+import { VoiceRecommendation } from '../../shared/contracts'
 import { SmartVoiceRecommendationsComponent } from './smart-voice-recommendations.component'
-import { ToastService } from '../../shared/toast.service'
 
 @Component({
   selector: 'app-character-voices',
@@ -19,12 +18,12 @@ import { ToastService } from '../../shared/toast.service'
         <div class="header-actions">
           <button
             class="smart-assign-btn"
-            (click)="generateSmartAssignments()"
-            [disabled]="isGeneratingSmart || characters().length === 0"
+            (click)="onRequestSmartAssignments()"
+            [disabled]="isGeneratingSmartAssignments() || characters().length === 0"
           >
-            {{ isGeneratingSmart ? '🤖 Analyzing...' : '🧠 Smart Assign' }}
+            {{ isGeneratingSmartAssignments() ? '🤖 Analyzing...' : '🧠 Smart Assign' }}
           </button>
-          <button (click)="loadVoices()" [disabled]="isLoadingVoices">
+          <button (click)="onRequestLoadVoices()" [disabled]="isLoadingVoices">
             {{ isLoadingVoices ? 'Loading...' : 'Load Voices' }}
           </button>
         </div>
@@ -272,12 +271,20 @@ export class CharacterVoicesComponent {
   protected isGeneratingSmart = false
   protected isLoadingVoices = false
 
+  @Input() isGeneratingSmartAssignments = signal(false)
+  @Output() requestLoadVoices = new EventEmitter<void>()
+  @Output() requestSmartAssignments = new EventEmitter<string>()
+  @Output() acceptRecommendation = new EventEmitter<VoiceRecommendation>()
+  @Output() acceptAlternative = new EventEmitter<{ character: string; voiceId: string }>()
+  @Output() acceptAll = new EventEmitter<VoiceRecommendation[]>()
+  @Output() dismissRecommendations = new EventEmitter<void>()
+  @Output() narratorVoiceChanged = new EventEmitter<{ voiceId: string; name: string }>()
+  @Output() narratorVoiceCleared = new EventEmitter<void>()
+
   constructor(
     public voiceStore: VoiceStore,
     private stories: StoryStore,
-    @Inject(VOICE_SERVICE) private voice: VoiceService,
-    private voiceAssignmentService: VoiceAssignmentService,
-    private toastService: ToastService
+    @Inject(VOICE_SERVICE) private voice: VoiceService
   ) {
     effect(() => {
       const parsed = this.stories.parsed()
@@ -299,78 +306,31 @@ export class CharacterVoicesComponent {
     this.voiceStore.setAssignment(c, voiceId)
   }
 
-  async loadVoices() {
-    this.isLoadingVoices = true
-    try {
-      const list = (await this.voice.listVoices?.()) ?? []
-      this.voiceStore.setVoices(list)
-      this.toastService.success('✅ Voices Loaded', `Found ${list.length} available voices`)
-    } catch (error: any) {
-      this.toastService.error('❌ Failed to Load Voices', error.message || 'Could not load voice list')
-    } finally {
-      this.isLoadingVoices = false
-    }
+  onRequestLoadVoices() {
+    this.requestLoadVoices.emit()
   }
 
-  async generateSmartAssignments() {
+  onRequestSmartAssignments() {
     const storyText = this.stories.currentText()
-    if (!storyText) {
-      this.toastService.error('❌ No Story Available', 'Please generate a story first')
-      return
-    }
+    if (!storyText) return
 
-    if (this.voiceStore.voices().length === 0) {
-      this.toastService.warning('⚠️ No Voices Loaded', 'Please load voices first')
-      await this.loadVoices()
-      if (this.voiceStore.voices().length === 0) return
-    }
-
-    this.isGeneratingSmart = true
-    this.toastService.info('🤖 Analyzing Characters', 'Generating smart voice recommendations...')
-
-    try {
-      const recommendations = await this.voiceAssignmentService.generateSmartAssignments(storyText)
-      this.smartRecommendations.set(recommendations)
-
-      const highConfidence = recommendations.filter(r => r.confidence > 0.7).length
-      this.toastService.success(
-        '✅ Smart Recommendations Ready',
-        `Generated ${recommendations.length} recommendations (${highConfidence} high confidence)`
-      )
-
-      // Also generate narrator voice recommendation
-      const narratorRecommendation = this.voiceAssignmentService.recommendNarratorVoice(storyText)
-      this.voiceStore.setNarratorVoice(narratorRecommendation)
-      this.toastService.success(
-        '✅ Narrator Voice Recommended',
-        `Selected ${narratorRecommendation.name} for narration`
-      )
-    } catch (error: any) {
-      this.toastService.error('❌ Smart Assignment Failed', error.message || 'Could not generate recommendations')
-    } finally {
-      this.isGeneratingSmart = false
-    }
+    this.requestSmartAssignments.emit(storyText)
   }
 
   onAcceptRecommendation(rec: VoiceRecommendation) {
-    this.voiceStore.setAssignment(rec.character, rec.recommendedVoiceId)
-    this.toastService.success('✅ Voice Assigned', `${rec.character} → ${this.getVoiceName(rec.recommendedVoiceId)}`)
+    this.acceptRecommendation.emit(rec)
   }
 
   onAcceptAlternative(data: { character: string; voiceId: string }) {
-    this.voiceStore.setAssignment(data.character, data.voiceId)
-    this.toastService.success('✅ Alternative Voice Assigned', `${data.character} → ${this.getVoiceName(data.voiceId)}`)
+    this.acceptAlternative.emit(data)
   }
 
   onAcceptAll(recommendations: VoiceRecommendation[]) {
-    this.voiceAssignmentService.applyRecommendations(recommendations)
-    this.smartRecommendations.set([])
-    this.toastService.success('✅ All Voices Assigned', `Assigned voices to ${recommendations.length} characters`)
+    this.acceptAll.emit(recommendations)
   }
 
   onDismissRecommendations() {
-    this.smartRecommendations.set([])
-    this.toastService.info('💡 Recommendations Dismissed', 'You can always generate new recommendations')
+    this.dismissRecommendations.emit()
   }
 
   // Narrator Voice Methods
@@ -380,17 +340,15 @@ export class CharacterVoicesComponent {
     const voice = this.voiceStore.voices().find(v => v.id === voiceId)
 
     if (voiceId && voice) {
-      this.voiceStore.setNarratorVoice({
+      this.narratorVoiceChanged.emit({
         voiceId,
         name: voice.name
       })
-      this.toastService.success('✅ Narrator Voice Set', `Narrator → ${voice.name}`)
     }
   }
 
   clearNarratorVoice() {
-    this.voiceStore.clearNarratorVoice()
-    this.toastService.info('🗑️ Narrator Voice Cleared', 'No narrator voice assigned')
+    this.narratorVoiceCleared.emit()
   }
 
   private getVoiceName(voiceId: string): string {

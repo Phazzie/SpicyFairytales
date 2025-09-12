@@ -31,6 +31,13 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y google-chrome-stable
 
+    - name: Run validation scripts
+      run: |
+        cd spicy-fairytales
+        npm run validate:seams
+        npm run validate:docs
+        npm run validate:quality
+
     - name: Run type checking
       run: |
         cd spicy-fairytales

@@ -1,6 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { VoiceRecommendation } from '../../services/voice-assignment.service'
+import { VoiceRecommendation } from '../../shared/contracts'
 
 @Component({
   selector: 'app-smart-voice-recommendations',

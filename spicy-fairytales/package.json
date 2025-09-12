@@ -8,6 +8,9 @@
     "watch": "ng build --watch --configuration development",
     "test": "cross-env CHROME_BIN=$(node -e \"console.log(require('puppeteer').executablePath())\") ng test",
     "validate": "node validate-env.js",
+    "validate:seams": "node scripts/validate-seams.js",
+    "validate:docs": "node scripts/validate-documentation.js",
+    "validate:quality": "node scripts/validate-quality.js",
     "test-apis": "node test-apis.js",
     "serve:ssr:spicy-fairytales": "node dist/spicy-fairytales/server/server.mjs"
   },
