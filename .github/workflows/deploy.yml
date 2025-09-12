@@ -1,0 +1,90 @@
+name: Production Deployment
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release' || github.event.inputs.environment == 'production'
+
+    environment:
+      name: production
+      url: https://spicyfairytales.com
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: spicy-fairytales/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd spicy-fairytales
+        npm ci
+
+    - name: Build for production
+      run: |
+        cd spicy-fairytales
+        npm run build -- --configuration production
+
+    - name: Deploy to production
+      uses: netlify/actions/cli@master
+      with:
+        args: deploy --dir=dist/spicy-fairytales --prod
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.environment == 'staging'
+
+    environment:
+      name: staging
+      url: https://staging.spicyfairytales.com
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: spicy-fairytales/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd spicy-fairytales
+        npm ci
+
+    - name: Build for staging
+      run: |
+        cd spicy-fairytales
+        npm run build -- --configuration staging
+
+    - name: Deploy to staging
+      uses: netlify/actions/cli@master
+      with:
+        args: deploy --dir=dist/spicy-fairytales --alias=staging
+      env:
+        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

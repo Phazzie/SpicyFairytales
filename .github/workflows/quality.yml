@@ -1,0 +1,75 @@
+name: Quality Checks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: spicy-fairytales/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd spicy-fairytales
+        npm ci
+
+    - name: Run ESLint
+      run: |
+        cd spicy-fairytales
+        npx eslint src --ext .ts,.html --max-warnings 0
+      continue-on-error: true
+
+    - name: Run Prettier check
+      run: |
+        cd spicy-fairytales
+        npx prettier --check "src/**/*.{ts,html,scss,json}"
+      continue-on-error: true
+
+  security:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: spicy-fairytales/package-lock.json
+
+    - name: Install dependencies
+      run: |
+        cd spicy-fairytales
+        npm ci
+
+    - name: Run npm audit
+      run: |
+        cd spicy-fairytales
+        npm audit --audit-level moderate
+      continue-on-error: true
+
+    - name: Run security scan
+      uses: github/super-linter/slim@v5
+      env:
+        DEFAULT_BRANCH: main
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        VALIDATE_ALL_CODEBASE: false
+        VALIDATE_JAVASCRIPT_ES: true
+        VALIDATE_TYPESCRIPT_ES: true
+        VALIDATE_HTML: true
+        VALIDATE_CSS: true
