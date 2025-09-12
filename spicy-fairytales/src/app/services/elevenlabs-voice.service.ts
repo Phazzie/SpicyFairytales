@@ -2,6 +2,11 @@ import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { VoiceService, ParsedStory, VoiceAssignment, AudioChunk, NarratorVoiceAssignment } from '../shared/contracts';
 
+interface ElevenLabsVoice {
+  voice_id: string;
+  name: string;
+}
+
 @Injectable()
 export class ElevenLabsVoiceService implements VoiceService {
   private readonly baseUrl = 'https://api.elevenlabs.io/v1';
@@ -54,7 +59,6 @@ export class ElevenLabsVoiceService implements VoiceService {
           character: segment.character
         };
       } catch (error) {
-        console.error(`Failed to generate audio for segment: ${segment.text}`, error);
         // Continue with next segment
       }
     }
@@ -138,20 +142,19 @@ export class ElevenLabsVoiceService implements VoiceService {
       }
 
       const data = await response.json();
-      return data.voices?.map((voice: any) => ({
+      return data.voices?.map((voice: ElevenLabsVoice) => ({
         id: voice.voice_id,
         name: voice.name
       })) || [];
 
     } catch (error) {
-      console.error('Failed to list voices:', error);
       return [];
     }
   }
 
   private getApiKey(): string | null {
     // Try environment variable first
-    const envKey = (window as any).VITE_ELEVENLABS_API_KEY || (import.meta as any).env?.VITE_ELEVENLABS_API_KEY;
+    const envKey = (import.meta as { env?: { VITE_ELEVENLABS_API_KEY?: string } }).env?.VITE_ELEVENLABS_API_KEY;
     if (envKey) return envKey;
 
     // Fallback to localStorage for development

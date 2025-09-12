@@ -8,7 +8,8 @@ import type {
   VoiceScoringStrategy,
   NarratorScoringStrategy,
   Voice,
-  StoryAnalysis
+  StoryAnalysis,
+  SpeakerParser
 } from '../shared/contracts'
 import { VoiceStore } from '../stores/voice.store'
 import {
@@ -41,7 +42,7 @@ export interface VoiceRecommendation {
 @Injectable({ providedIn: 'root' })
 export class VoiceAssignmentService {
   constructor(
-    @Inject(SPEAKER_PARSER) private parser: any,
+    @Inject(SPEAKER_PARSER) private parser: SpeakerParser,
     private voiceStore: VoiceStore,
     @Inject(AGE_SCORING_STRATEGY) private ageStrategy: VoiceScoringStrategy,
     @Inject(GENDER_SCORING_STRATEGY) private genderStrategy: VoiceScoringStrategy,

@@ -1,6 +1,24 @@
 import { Injectable } from '@angular/core';
 import { SpeakerParser, ParsedStory, ParsedStorySegment } from '../shared/contracts';
 
+interface RawStorySegment {
+  type?: string;
+  text?: string;
+  character?: string;
+  emotion?: string;
+  ssml?: string;
+}
+
+interface RawStoryCharacter {
+  name?: string;
+  appearances?: number;
+}
+
+interface RawParsedStory {
+  segments?: RawStorySegment[];
+  characters?: RawStoryCharacter[];
+}
+
 @Injectable()
 export class GrokSpeakerParser implements SpeakerParser {
   constructor() {}
@@ -85,7 +103,7 @@ Important:
         throw new Error('No JSON found in Grok response');
       }
 
-      const parsed = JSON.parse(jsonMatch[0]);
+      const parsed: RawParsedStory = JSON.parse(jsonMatch[0]);
 
       // Validate the structure
       if (!parsed.segments || !Array.isArray(parsed.segments)) {
@@ -98,12 +116,12 @@ Important:
 
       // Validate and clean up segments
       const validSegments: ParsedStorySegment[] = parsed.segments
-        .filter((segment: any) => {
-          return segment.type && segment.text &&
+        .filter((segment: RawStorySegment): segment is RawStorySegment & { type: string; text: string } => {
+          return segment.type !== undefined && segment.text !== undefined &&
                  ['narration', 'dialogue', 'action'].includes(segment.type);
         })
-        .map((segment: any) => ({
-          type: segment.type,
+        .map((segment: RawStorySegment & { type: string; text: string }) => ({
+          type: segment.type as 'narration' | 'dialogue' | 'action',
           text: segment.text,
           character: segment.character,
           emotion: segment.emotion,
@@ -112,7 +130,7 @@ Important:
 
       return {
         segments: validSegments,
-        characters: parsed.characters.map((char: any) => ({
+        characters: parsed.characters.map((char: RawStoryCharacter) => ({
           name: char.name || 'Unknown',
           appearances: char.appearances || 0
         }))
@@ -125,7 +143,7 @@ Important:
 
   private getApiKey(): string | null {
     // Try environment variable first
-    const envKey = (window as any).VITE_GROK_API_KEY || (import.meta as any).env?.VITE_GROK_API_KEY;
+    const envKey = (import.meta as { env?: { VITE_GROK_API_KEY?: string } }).env?.VITE_GROK_API_KEY;
     if (envKey) return envKey;
 
     // Fallback to localStorage for development

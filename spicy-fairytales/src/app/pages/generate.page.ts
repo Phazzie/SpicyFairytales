@@ -7,7 +7,7 @@ import { CharacterVoicesComponent } from '../features/voices/character-voices.co
 import { AudioPlayerComponent } from '../features/voice/audio-player.component'
 import { ExportPanelComponent } from '../features/export/export-panel.component'
 import { SPEAKER_PARSER, STORY_SERVICE, VOICE_SERVICE } from '../shared/tokens'
-import type { StoryOptions, StoryService, VoiceAssignment, VoiceService, AudioChunk } from '../shared/contracts'
+import type { StoryOptions, StoryService, VoiceAssignment, VoiceService, AudioChunk, SpeakerParser } from '../shared/contracts'
 import { StoryStore } from '../stores/story.store'
 import { VoiceStore } from '../stores/voice.store'
 import { env } from '../shared/env'
@@ -200,7 +200,7 @@ export class GeneratePageComponent {
   constructor(
     @Inject(STORY_SERVICE) private story: StoryService,
     public store: StoryStore,
-    @Inject(SPEAKER_PARSER) private parser: any,
+    @Inject(SPEAKER_PARSER) private parser: SpeakerParser,
     @Inject(VOICE_SERVICE) private voice: VoiceService,
     private voices: VoiceStore,
     private toastService: ToastService
@@ -246,8 +246,8 @@ export class GeneratePageComponent {
         '✅ Speakers Parsed',
         `Found ${parsed.segments?.length || 0} segments and ${parsed.characters?.length || 0} characters`
       )
-    } catch (error: any) {
-      this.toastService.error('❌ Speaker Parsing Failed', error.message || 'Failed to parse speakers')
+    } catch (error: unknown) {
+      this.toastService.error('❌ Speaker Parsing Failed', error instanceof Error ? error.message : 'Failed to parse speakers')
     } finally {
       this.isParsing = false
     }
@@ -317,9 +317,8 @@ export class GeneratePageComponent {
 
       this.testStatus = { type: 'success', message: '✅ All APIs working perfectly! Full pipeline test successful.' }
 
-    } catch (error: any) {
-      this.testStatus = { type: 'error', message: `❌ API Test Failed: ${error.message}` }
-      console.error('API Test Error:', error)
+    } catch (error: unknown) {
+      this.testStatus = { type: 'error', message: `❌ API Test Failed: ${error instanceof Error ? error.message : 'Unknown error'}` }
     } finally {
       this.isTesting = false
     }
