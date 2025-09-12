@@ -1,3 +1,6 @@
+/**
+ * AI-powered speaker parser using Grok to extract dialogue and character assignments from stories.
+ */
 import { Injectable } from '@angular/core';
 import { SpeakerParser, ParsedStory, ParsedStorySegment } from '../shared/contracts';
 

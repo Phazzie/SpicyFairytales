@@ -1,3 +1,6 @@
+/**
+ * Mock implementations of core services for development and testing without API costs.
+ */
 import { Observable, concat, of, timer, map } from 'rxjs'
 import type {
   AudioChunk,

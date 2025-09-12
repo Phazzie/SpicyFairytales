@@ -1,3 +1,6 @@
+/**
+ * Application routing configuration for navigation between pages.
+ */
 import { Routes } from '@angular/router';
 import { GeneratePageComponent } from './pages/generate.page';
 

@@ -1,3 +1,6 @@
+/**
+ * Reactive store for managing voice assignments and audio synthesis state.
+ */
 import { Injectable, computed, signal } from '@angular/core'
 import { NarratorVoiceAssignment } from '../shared/contracts'
 

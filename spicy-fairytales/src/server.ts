@@ -1,3 +1,6 @@
+/**
+ * Express server for server-side rendering (SSR) of the Angular application.
+ */
 import {
   AngularNodeAppEngine,
   createNodeRequestHandler,

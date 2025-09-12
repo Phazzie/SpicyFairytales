@@ -1,3 +1,6 @@
+/**
+ * Root Angular component that bootstraps the application with theme and toast features.
+ */
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeToggleComponent } from './shared/theme-toggle.component';

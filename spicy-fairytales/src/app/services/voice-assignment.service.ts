@@ -1,3 +1,6 @@
+/**
+ * Voice assignment service that matches characters to appropriate voice actors.
+ */
 import { Injectable, Inject } from '@angular/core'
 import { Observable, from } from 'rxjs'
 import { SPEAKER_PARSER } from '../shared/tokens'

@@ -1,3 +1,6 @@
+/**
+ * Reactive store for managing story generation state and parsed story content.
+ */
 import { Injectable, signal } from '@angular/core'
 import type { ParsedStory } from '../shared/contracts'
 

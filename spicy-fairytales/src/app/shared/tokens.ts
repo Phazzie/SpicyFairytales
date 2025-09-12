@@ -1,3 +1,6 @@
+/**
+ * Dependency injection tokens for service interfaces and configuration.
+ */
 import { InjectionToken } from '@angular/core'
 import type { SpeakerParser, StoryService, VoiceService } from './contracts'
 

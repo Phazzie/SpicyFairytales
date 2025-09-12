@@ -1,3 +1,6 @@
+/**
+ * Angular application configuration with providers and dependencies.
+ */
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 

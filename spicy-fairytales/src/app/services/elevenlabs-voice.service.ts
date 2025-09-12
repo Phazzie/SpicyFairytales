@@ -1,3 +1,6 @@
+/**
+ * ElevenLabs voice synthesis service for converting text to natural speech audio.
+ */
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { VoiceService, ParsedStory, VoiceAssignment, AudioChunk, NarratorVoiceAssignment } from '../shared/contracts';

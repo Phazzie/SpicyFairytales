@@ -1,3 +1,6 @@
+/**
+ * Service for managing application-wide dark/light theme preferences.
+ */
 import { Injectable, Inject, PLATFORM_ID } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';

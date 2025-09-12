@@ -1,3 +1,6 @@
+/**
+ * HTTP-based story generation service using Grok API for streaming AI story creation.
+ */
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { StoryService, StoryOptions } from '../shared/contracts';
