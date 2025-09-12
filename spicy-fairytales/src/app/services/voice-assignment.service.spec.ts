@@ -26,15 +26,15 @@ describe('VoiceAssignmentService', () => {
     { id: '4', name: 'Friendly Warm Voice' }
   ]
 
-    const mockParsedStory: ParsedStory = {
+  const mockParsedStory: ParsedStory = {
     characters: [
-      { name: 'Young Prince Bob', appearances: 5 }, // Will trigger 'young' age + 'prince' gender + 'hero' role
-      { name: 'Evil Princess Emma', appearances: 3 } // Will trigger 'princess' gender trait  
+      { name: 'Young Hero Prince Bob', appearances: 5 }, // Will trigger 'young' age + 'prince' gender + 'hero' role
+      { name: 'Evil Villain Princess Emma', appearances: 3 } // Will trigger 'princess' gender + 'villain' role
     ],
     segments: [
       { type: 'narration', text: 'Once upon a time...', character: undefined },
-      { type: 'dialogue', text: 'I will save the day!', character: 'Young Prince Bob' },
-      { type: 'dialogue', text: 'You will fail!', character: 'Evil Princess Emma' }
+      { type: 'dialogue', text: 'I will save the day!', character: 'Young Hero Prince Bob' },
+      { type: 'dialogue', text: 'You will fail!', character: 'Evil Villain Princess Emma' }
     ]
   }
 
@@ -92,8 +92,8 @@ describe('VoiceAssignmentService', () => {
       const recommendations = await service.generateSmartAssignments(storyText)
       
       expect(recommendations).toHaveSize(2)
-      expect(recommendations[0].character).toBe('Young Prince Bob')
-      expect(recommendations[1].character).toBe('Evil Princess Emma')
+      expect(recommendations[0].character).toBe('Young Hero Prince Bob')
+      expect(recommendations[1].character).toBe('Evil Villain Princess Emma')
       expect(mockParser.parseStory).toHaveBeenCalledWith(storyText)
     })
 
