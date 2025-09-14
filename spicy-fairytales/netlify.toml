@@ -1,0 +1,11 @@
+[build]
+  publish = "dist/spicy-fairytales/browser"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.csr.html"
+  status = 200
+
+[build.environment]
+  NODE_VERSION = "18"

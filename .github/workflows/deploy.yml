@@ -44,10 +44,15 @@ jobs:
         cd spicy-fairytales
         npm run build -- --configuration production
 
+    - name: Create Netlify redirect rules
+      run: |
+        cd spicy-fairytales
+        echo "/*    /index.csr.html   200" > dist/spicy-fairytales/browser/_redirects
+
     - name: Deploy to production
       uses: netlify/actions/cli@master
       with:
-        args: deploy --dir=dist/spicy-fairytales --prod
+        args: deploy --dir=spicy-fairytales/dist/spicy-fairytales/browser --prod
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
@@ -81,10 +86,15 @@ jobs:
         cd spicy-fairytales
         npm run build -- --configuration staging
 
+    - name: Create Netlify redirect rules
+      run: |
+        cd spicy-fairytales
+        echo "/*    /index.csr.html   200" > dist/spicy-fairytales/browser/_redirects
+
     - name: Deploy to staging
       uses: netlify/actions/cli@master
       with:
-        args: deploy --dir=dist/spicy-fairytales --alias=staging
+        args: deploy --dir=spicy-fairytales/dist/spicy-fairytales/browser --alias=staging
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
