@@ -12,7 +12,7 @@
  * ARCHITECTURE: Implements dependency inversion with service abstraction, enables environment-based service selection
  * CRITICAL: Service provider bindings must match contracts.ts interfaces for type safety
  */
-import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection } from '@angular/core';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZoneChangeDetection, ErrorHandler } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -25,16 +25,20 @@ import { GrokSpeakerParser } from './services/grok-speaker-parser.service';
 import { ElevenLabsVoiceService } from './services/elevenlabs-voice.service';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './shared/http.interceptor';
+import { GlobalErrorHandler } from './shared/global-error-handler';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-  provideRouter(routes), provideClientHydration(withEventReplay()),
-  provideHttpClient(withInterceptors([authInterceptor])),
-  // Seam DI providers (mocks for now; swap with real services later)
-  { provide: STORY_SERVICE, useClass: env.useMocks ? MockStoryService : HttpStoryService },
-  { provide: SPEAKER_PARSER, useClass: env.useMocks ? MockSpeakerParser : GrokSpeakerParser },
-  { provide: VOICE_SERVICE, useClass: env.useMocks ? MockVoiceService : ElevenLabsVoiceService },
+    provideRouter(routes), 
+    provideClientHydration(withEventReplay()),
+    provideHttpClient(withInterceptors([authInterceptor])),
+    // Global error handling
+    { provide: ErrorHandler, useClass: GlobalErrorHandler },
+    // Service DI providers (mocks for development; real services for production)
+    { provide: STORY_SERVICE, useClass: env.useMocks ? MockStoryService : HttpStoryService },
+    { provide: SPEAKER_PARSER, useClass: env.useMocks ? MockSpeakerParser : GrokSpeakerParser },
+    { provide: VOICE_SERVICE, useClass: env.useMocks ? MockVoiceService : ElevenLabsVoiceService },
   ]
 };

@@ -4,10 +4,12 @@
   "buildCommand": "cd spicy-fairytales && npm run build",
   "outputDirectory": "spicy-fairytales/dist/spicy-fairytales/browser",
   "installCommand": "cd spicy-fairytales && npm ci",
-  "framework": "angular",
+  "framework": null,
   "functions": {
     "spicy-fairytales/dist/spicy-fairytales/server/server.mjs": {
-      "runtime": "nodejs20.x"
+      "runtime": "nodejs20.x",
+      "memory": 1024,
+      "maxDuration": 30
     }
   },
   "rewrites": [
@@ -16,15 +18,21 @@
       "destination": "/api/[...api].js"
     },
     {
+      "source": "/(.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))",
+      "destination": "/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/spicy-fairytales/dist/spicy-fairytales/server/server.mjs"
     }
   ],
   "env": {
+    "NODE_ENV": "production",
     "VITE_USE_MOCKS": "false"
   },
   "build": {
     "env": {
+      "NODE_ENV": "production",
       "VITE_USE_MOCKS": "false"
     }
   },
@@ -47,17 +55,32 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
         }
       ]
     },
     {
-      "source": "/static/(.*)",
+      "source": "/.*\\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
         }
       ]
+    },
+    {
+      "source": "/.*\\.(html|json)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
     }
-  ]
+  ],
+  "cleanUrls": true,
+  "trailingSlash": false
 }
