@@ -14,6 +14,7 @@
  */
 import { Injectable } from '@angular/core';
 import { SpeakerParser, ParsedStory, ParsedStorySegment } from '../shared/contracts';
+import { env } from '../shared/env';
 
 @Injectable()
 export class GrokSpeakerParser implements SpeakerParser {
@@ -138,11 +139,7 @@ Important:
   }
 
   private getApiKey(): string | null {
-    // Try environment variable first
-    const envKey = (window as any).VITE_GROK_API_KEY || (import.meta as any).env?.VITE_GROK_API_KEY;
-    if (envKey) return envKey;
-
-    // Fallback to localStorage for development
-    return localStorage.getItem('GROK_API_KEY');
+    // Use the centralized environment configuration with validation
+    return env.getApiKey('grok');
   }
 }

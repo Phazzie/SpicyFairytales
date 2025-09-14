@@ -290,7 +290,7 @@ Ensure the story flows naturally, maintains consistent characterization, and del
   }
 
   private getApiKey(): string | null {
-    // Use environment configuration
-    return env.grokApiKey || null
+    // Use the centralized environment configuration with validation
+    return env.getApiKey('grok');
   }
 }
