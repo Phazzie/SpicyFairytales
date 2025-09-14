@@ -43,7 +43,11 @@ export class HttpStoryService implements StoryService {
           messages: [{ role: 'user', content: prompt }],
           model: 'grok-4-0709',
           stream: true,
-          temperature: 0.7,
+          temperature: 0.8,
+          max_tokens: 4000,
+          top_p: 0.95,
+          frequency_penalty: 0.1,
+          presence_penalty: 0.1,
         }),
       });
 
@@ -100,16 +104,46 @@ export class HttpStoryService implements StoryService {
     const selectedThemes = options.selectedThemes || [];
     const userIdeas = options.userIdeas || '';
 
-    // Base prompt structure
-    let prompt = `Write a complete ${wordCount} word story featuring a ${this.getCharacterTypeDescription(characterType)} as the main character.
+    // Check if this is a test case with specific word count
+    const isTestCase = userIdeas?.includes('API test story with exactly');
+    const exactWordMatch = userIdeas?.match(/exactly (\d+) words/);
+    const exactWordCount = exactWordMatch ? exactWordMatch[1] : null;
 
-STORY REQUIREMENTS:
-- Word count: ${wordCount} words (be precise)
+    // Base prompt structure with enhanced AI instructions
+    let prompt = `You are an expert creative writer specializing in supernatural romance and fantasy. Write a complete ${exactWordCount ? exactWordCount : wordCount} word story featuring a ${this.getCharacterTypeDescription(characterType)} as the main character.
+
+🎯 CRITICAL REQUIREMENTS:
+- Word count: ${exactWordCount ? `EXACTLY ${exactWordCount}` : `EXACTLY ${wordCount}`} words (be precise and count carefully)
 - Character type: ${this.getCharacterTypeDescription(characterType)}
 - Maturity level: ${this.getSpicyLevelDescription(spicyLevel)}
-- Themes to incorporate: ${this.getThemesDescription(selectedThemes)}
+- Themes to weave in: ${this.getThemesDescription(selectedThemes)}
+- Writing style: Immersive, engaging, descriptive with rich sensory details
 
-${userIdeas ? `USER IDEAS TO INCORPORATE:\n${userIdeas}\n\n` : ''}`;
+${isTestCase ? `🧪 THIS IS AN API TEST: Focus on demonstrating full functionality with exactly ${exactWordCount} words. Make it a complete, engaging story that showcases all features.\n\n` : ''}
+${userIdeas && !isTestCase ? `📝 SPECIAL USER REQUIREMENTS:\n${userIdeas}\n\n` : ''}
+
+🎭 DIALOGUE REQUIREMENTS:
+- Include at least 3-5 distinct speaking characters
+- Use quotation marks for all dialogue: "Like this"
+- Vary speaking patterns and personalities for each character
+- Include internal monologue and thoughts
+- Make dialogue natural, emotional, and character-driven
+
+🔥 NARRATIVE STRUCTURE:
+- Hook: Compelling opening that immediately establishes tone and character
+- Character Development: Show personality through actions, dialogue, and internal conflict
+- World Building: Rich, immersive supernatural setting details
+- Pacing: Balance action, dialogue, romance, and introspection
+- Climax: Emotionally and romantically satisfying peak moment
+- Resolution: Complete but leaves reader wanting more
+
+💫 STYLE REQUIREMENTS:
+- Use present tense for immediacy and engagement
+- Show, don't tell - use actions and dialogue to reveal character
+- Include all five senses in descriptions
+- Vary sentence length for rhythm and flow
+- Use active voice predominantly
+- Create emotional resonance and connection`;
 
     // Add character-specific guidance
     prompt += this.getCharacterSpecificGuidance(characterType, spicyLevel);
@@ -122,26 +156,54 @@ ${userIdeas ? `USER IDEAS TO INCORPORATE:\n${userIdeas}\n\n` : ''}`;
     // Add spicy level guidance
     prompt += this.getSpicyLevelGuidance(spicyLevel);
 
-    // Add story structure guidance
+    // Add story structure guidance with enhanced detail
     prompt += `
 
-STORY STRUCTURE:
-- Introduction: Set the scene and introduce the ${characterType}
-- Rising Action: Build tension with the selected themes
-- Climax: Peak emotional/intimate moment
-- Resolution: Satisfying conclusion
+🏗️ DETAILED STORY STRUCTURE GUIDE:
+1. OPENING (15-20% of story):
+   - Establish ${characterType} protagonist with compelling voice
+   - Set supernatural world/setting with vivid details
+   - Introduce central conflict or romantic tension
+   - Hook reader with intrigue or emotional pull
 
-Ensure the story flows naturally, maintains consistent characterization, and delivers the requested level of spice and maturity. Write in an engaging, narrative style that draws readers in completely.`;
+2. RISING ACTION (40-50% of story):
+   - Develop character relationships through dialogue and interaction
+   - Build romantic/sexual tension progressively
+   - Integrate selected themes naturally into plot
+   - Include character backstory and motivations
+   - Add obstacles and conflicts that test relationships
+
+3. CLIMAX (20-30% of story):
+   - Peak emotional and/or physical intimacy moment
+   - Resolve central conflict through character growth
+   - Maximum emotional impact and reader engagement
+   - Showcase character transformation or realization
+
+4. RESOLUTION (10-15% of story):
+   - Satisfying conclusion that feels complete
+   - Show how characters have changed/grown
+   - Leave subtle hints for future possibilities
+   - End with emotional resonance
+
+🎨 ADVANCED WRITING TECHNIQUES:
+- Metaphor and symbolism related to supernatural themes
+- Sensory-rich descriptions that create atmosphere
+- Subtext in dialogue that reveals deeper meanings
+- Foreshadowing and callbacks to earlier moments
+- Varied pacing: slow burns and quick action sequences
+- Multiple layers of conflict: internal, interpersonal, external
+
+Write a story that readers will find completely immersive, emotionally satisfying, and technically excellent. Focus on character depth, relationship dynamics, and supernatural world-building while maintaining the exact word count requested.`;
 
     return prompt;
   }
 
   private getWordCountForLength(length: string): string {
     switch (length) {
-      case 'short': return '700-900';
-      case 'medium': return '900-1100';
-      case 'long': return '1100-1200';
-      default: return '900-1100';
+      case 'short': return '480-600';
+      case 'medium': return '700-800';
+      case 'long': return '900-1000';
+      default: return '700-800';
     }
   }
 

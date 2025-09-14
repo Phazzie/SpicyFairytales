@@ -112,7 +112,7 @@ import type { StoryOptions } from '../../shared/contracts'
             <input type="radio" formControlName="length" value="short" />
             <div class="length-card">
               <div class="length-name">Short Story</div>
-              <div class="length-words">700-900 words</div>
+              <div class="length-words">480-600 words</div>
               <div class="length-desc">Quick, focused narrative</div>
             </div>
           </label>
@@ -120,7 +120,7 @@ import type { StoryOptions } from '../../shared/contracts'
             <input type="radio" formControlName="length" value="medium" />
             <div class="length-card">
               <div class="length-name">Medium Story</div>
-              <div class="length-words">900-1100 words</div>
+              <div class="length-words">700-800 words</div>
               <div class="length-desc">Balanced, detailed tale</div>
             </div>
           </label>
@@ -128,10 +128,42 @@ import type { StoryOptions } from '../../shared/contracts'
             <input type="radio" formControlName="length" value="long" />
             <div class="length-card">
               <div class="length-name">Long Story</div>
-              <div class="length-words">1100-1200 words</div>
+              <div class="length-words">900-1000 words</div>
               <div class="length-desc">Epic, immersive experience</div>
             </div>
           </label>
+        </div>
+      </div>
+
+      <!-- API Test Buttons -->
+      <div class="form-section">
+        <h3 class="section-title">🧪 Quick API Tests</h3>
+        <p class="help-text">Test the AI with predefined story lengths to verify API functionality</p>
+        <div class="test-buttons">
+          <button
+            type="button"
+            (click)="testStoryGeneration(480)"
+            [disabled]="submitting()"
+            class="test-btn test-480"
+          >
+            🚀 Test 480 Words
+          </button>
+          <button
+            type="button"
+            (click)="testStoryGeneration(700)"
+            [disabled]="submitting()"
+            class="test-btn test-700"
+          >
+            🔥 Test 700 Words
+          </button>
+          <button
+            type="button"
+            (click)="testStoryGeneration(900)"
+            [disabled]="submitting()"
+            class="test-btn test-900"
+          >
+            ⚡ Test 900 Words
+          </button>
         </div>
       </div>
 
@@ -415,6 +447,51 @@ import type { StoryOptions } from '../../shared/contracts'
         color: var(--text-muted, #666);
       }
 
+      /* Test Buttons */
+      .test-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      .test-btn {
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        min-width: 140px;
+      }
+
+      .test-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .test-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .test-480 {
+        background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+      }
+
+      .test-700 {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+      }
+
+      .test-900 {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      }
+
       /* Form Actions */
       .form-actions {
         text-align: center;
@@ -452,6 +529,16 @@ import type { StoryOptions } from '../../shared/contracts'
         .themes-grid,
         .length-options {
           grid-template-columns: 1fr;
+        }
+
+        .test-buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .test-btn {
+          width: 100%;
+          max-width: 200px;
         }
 
         .section-title {
@@ -500,6 +587,32 @@ export class StoryFormComponent {
       userIdeas: [''],
       length: ['medium', Validators.required],
     })
+  }
+
+  testStoryGeneration(wordCount: number) {
+    this.submitting.set(true)
+
+    // Create test story options based on word count
+    const testOptions: StoryOptions = {
+      characterType: 'werewolf',
+      selectedThemes: ['romance', 'supernatural'],
+      spicyLevel: 5,
+      userIdeas: `API test story with exactly ${wordCount} words - generate a supernatural romance with werewolf character`,
+      length: this.getTestLength(wordCount),
+      // Keep these for backward compatibility
+      genre: 'dark-fantasy',
+      tone: 'dark',
+      themes: ['romance', 'supernatural'],
+      prompt: `API test story with exactly ${wordCount} words - generate a supernatural romance with werewolf character`,
+    }
+
+    this.optionsSubmit.emit(testOptions)
+  }
+
+  private getTestLength(wordCount: number): 'short' | 'medium' | 'long' {
+    if (wordCount <= 500) return 'short'
+    if (wordCount <= 750) return 'medium'
+    return 'long'
   }
 
   onThemeToggle(themeId: string, event: Event) {

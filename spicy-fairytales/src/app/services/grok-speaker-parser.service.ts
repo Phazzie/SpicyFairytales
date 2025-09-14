@@ -39,7 +39,9 @@ export class GrokSpeakerParser implements SpeakerParser {
             content: this.buildParsePrompt(text)
           }],
           model: 'grok-4-0709',
-          temperature: 0.3, // Lower temperature for more consistent parsing
+          temperature: 0.2, // Lower temperature for more consistent parsing
+          max_tokens: 3000,
+          top_p: 0.9,
         }),
       });
 
@@ -62,34 +64,64 @@ export class GrokSpeakerParser implements SpeakerParser {
   }
 
   private buildParsePrompt(storyText: string): string {
-    return `Please analyze this story and break it down into segments. Return a JSON object with the following structure:
+    return `You are an expert literary analyst specializing in dialogue extraction and character identification. Analyze this story and break it down into segments for voice synthesis.
+
+🎯 CRITICAL PARSING REQUIREMENTS:
+Return a perfectly formatted JSON object with this EXACT structure:
 
 {
   "segments": [
     {
       "type": "narration|dialogue|action",
-      "text": "The exact text from the story",
-      "character": "Character name (only for dialogue segments)",
-      "emotion": "Emotion or tone (optional)"
+      "text": "Exact text from the story",
+      "character": "Character name (ONLY for dialogue segments)",
+      "emotion": "Emotional tone (optional but recommended)"
     }
   ],
   "characters": [
     {
       "name": "Character Name",
-      "appearances": 5
+      "appearances": 5,
+      "description": "Brief character description"
     }
   ]
 }
 
+📋 DETAILED SEGMENT CLASSIFICATION RULES:
+1. **"dialogue"** - Any spoken words in quotation marks:
+   - Include the quotation marks in the text
+   - MUST include "character" field with speaker's name
+   - Add "emotion" field: happy, sad, angry, seductive, mysterious, etc.
+
+2. **"narration"** - Descriptive text, scene setting, exposition:
+   - Background information, setting descriptions
+   - Character descriptions from narrator's perspective
+   - Transitional text between scenes
+   - NO "character" field (leave undefined/null)
+
+3. **"action"** - Character actions, movements, gestures:
+   - Physical actions: "He walked across the room"
+   - Internal actions: "She felt her heart racing"
+   - Action descriptions that advance the plot
+   - NO "character" field (leave undefined/null)
+
+🎭 CHARACTER IDENTIFICATION RULES:
+- Count every instance where a character speaks (dialogue segments only)
+- If a character is unnamed, use descriptive names like "The Stranger", "Woman", "Guard"
+- Include brief description of each character's role or appearance
+- Be consistent with character naming throughout
+
+📚 PARSING BEST PRACTICES:
+- Preserve exact punctuation and formatting from original
+- Break long paragraphs into logical segments
+- Keep related sentences together in the same segment
+- Ensure every word from the original story is included
+- Maintain story flow and readability
+
 Story to analyze:
 ${storyText}
 
-Important:
-- Break the story into logical segments
-- Use "dialogue" for spoken lines, "narration" for descriptive text, "action" for character actions
-- Only include "character" field for dialogue segments
-- Count how many times each character appears
-- Keep the exact text from the story for each segment`;
+Return ONLY the JSON object, no additional text or explanations.`;
   }
 
   private parseGrokResponse(response: string, originalStory: string): ParsedStory {
