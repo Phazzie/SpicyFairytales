@@ -14,6 +14,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { StoryService, StoryOptions } from '../shared/contracts';
+import { env } from '../shared/env';
 
 @Injectable()
 export class HttpStoryService implements StoryService {
@@ -289,11 +290,7 @@ Ensure the story flows naturally, maintains consistent characterization, and del
   }
 
   private getApiKey(): string | null {
-    // Try environment variable first
-    const envKey = (window as any).VITE_GROK_API_KEY || (import.meta as any).env?.VITE_GROK_API_KEY;
-    if (envKey) return envKey;
-
-    // Fallback to localStorage for development
-    return localStorage.getItem('GROK_API_KEY');
+    // Use environment configuration
+    return env.grokApiKey || null
   }
 }

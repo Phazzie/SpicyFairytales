@@ -5,11 +5,14 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:vercel": "ng build --configuration production --output-path dist/browser && cp -r dist/spicy-fairytales/server dist/",
     "watch": "ng build --watch --configuration development",
     "test": "cross-env CHROME_BIN=$(node -e \"console.log(require('puppeteer').executablePath())\") ng test",
+    "test:ci": "ng test --watch=false --browsers=ChromeHeadless",
     "validate": "node validate-env.js",
     "test-apis": "node test-apis.js",
-    "serve:ssr:spicy-fairytales": "node dist/spicy-fairytales/server/server.mjs"
+    "serve:ssr:spicy-fairytales": "node dist/spicy-fairytales/server/server.mjs",
+    "postinstall": "npm run validate"
   },
   "prettier": {
     "printWidth": 100,
