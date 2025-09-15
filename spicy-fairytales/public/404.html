@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Spicy Fairytales</title>
+  <meta name="description" content="AI-powered fairytale generator with voice synthesis">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <script>
+    // Redirect to the main app for client-side routing
+    // This handles GitHub Pages 404s for Angular routes
+    const path = window.location.pathname + window.location.search + window.location.hash;
+    const basePath = '/SpicyFairytales/'; // Adjust if your repo name is different
+    
+    // If we're on GitHub Pages and the path doesn't start with the base path
+    if (window.location.hostname.includes('github.io') && !path.startsWith(basePath)) {
+      window.location.replace(basePath + path.substring(1));
+    } else if (!window.location.hostname.includes('github.io')) {
+      // For other deployments, redirect to root
+      window.location.replace('/' + path.substring(1));
+    }
+  </script>
+</head>
+<body>
+  <div style="text-align: center; margin-top: 50px;">
+    <h1>Redirecting...</h1>
+    <p>If you are not redirected automatically, <a href="/">click here</a>.</p>
+  </div>
+</body>
+</html>
