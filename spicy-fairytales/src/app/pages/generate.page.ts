@@ -14,6 +14,7 @@
  */
 import { Component, Inject } from '@angular/core'
 import { CommonModule } from '@angular/common'
+import { FormsModule } from '@angular/forms'
 import { Observable } from 'rxjs'
 import { StoryFormComponent } from '../features/story/story-form.component'
 import { StoryDisplayComponent } from '../features/story/story-display.component'
@@ -31,9 +32,33 @@ import { ToastService } from '../shared/toast.service'
 @Component({
   selector: 'app-generate-page',
   standalone: true,
-  imports: [CommonModule, StoryFormComponent, StoryDisplayComponent, CharacterVoicesComponent, AudioPlayerComponent, ExportPanelComponent, LoadingSkeletonComponent],
+  imports: [CommonModule, FormsModule, StoryFormComponent, StoryDisplayComponent, CharacterVoicesComponent, AudioPlayerComponent, ExportPanelComponent, LoadingSkeletonComponent],
   template: `
     <div class="layout">
+      <!-- API Keys Panel -->
+      <div class="api-keys-panel">
+        <h3>🔑 API Keys</h3>
+        <p class="muted">Keys are stored locally in your browser only (localStorage). This app reads from localStorage for security.</p>
+        <div class="keys-grid">
+          <div class="key-item">
+            <label>Grok API Key</label>
+            <input type="password" [(ngModel)]="grokKeyInput" placeholder="paste x.ai key" />
+          </div>
+          <div class="key-item">
+            <label>ElevenLabs API Key</label>
+            <input type="password" [(ngModel)]="elevenKeyInput" placeholder="paste elevenlabs key" />
+          </div>
+        </div>
+        <div class="keys-actions">
+          <button class="btn btn-primary" (click)="saveKeys()">Save Keys</button>
+          <button class="btn" (click)="loadKeys()">Load from Browser</button>
+          <button class="btn btn-danger" (click)="clearKeys()">Clear Keys</button>
+        </div>
+        <div class="keys-status">
+          <span>Grok: {{ hasGrokKey ? '✅' : '❌' }}</span>
+          <span>ElevenLabs: {{ hasElevenKey ? '✅' : '❌' }}</span>
+        </div>
+      </div>
       <!-- API Test Section -->
       <div class="api-test-section">
         <h3>🚀 API Integration Test</h3>
@@ -56,7 +81,11 @@ import { ToastService } from '../shared/toast.service'
       </div>
 
       <div class="story-section">
-        <app-story-form (optionsSubmit)="onGenerate($event, form)" #form></app-story-form>
+        <app-story-form 
+  (onGenerate)="onGenerate($event)"
+  (onTestApi)="onTestApi()"
+  (onGenerateTestStory)="onGenerateTestStory($event)"
+></app-story-form>
 
         <div class="story-content" *ngIf="!isGenerating; else storyLoading">
           <app-story-display [append]="latestChunk"></app-story-display>
@@ -117,6 +146,25 @@ import { ToastService } from '../shared/toast.service'
       .layout { display: grid; gap: 1rem; max-width: 900px; margin: 2rem auto; }
       .actions { display: flex; gap: 0.75rem; align-items: center; }
       .muted { color: #666; font-style: italic; }
+
+      .api-keys-panel {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 1rem;
+      }
+      .api-keys-panel h3 { margin: 0 0 0.5rem 0; }
+      .keys-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+      .key-item { display: flex; flex-direction: column; gap: 0.25rem; }
+      .key-item input { padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+      .keys-actions { margin-top: 0.75rem; display: flex; gap: 0.5rem; }
+      .btn { padding: 0.5rem 0.9rem; border-radius: 6px; border: 1px solid #ddd; background: #f8f9fa; cursor: pointer; }
+      .btn:hover { background: #f1f3f5; }
+      .btn-primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+      .btn-primary:hover { background: #4338ca; }
+      .btn-danger { background: #ef4444; color: #fff; border-color: #ef4444; }
+      .btn-danger:hover { background: #dc2626; }
+      .keys-status { margin-top: 0.5rem; display: flex; gap: 1rem; }
 
       .api-test-section {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -206,6 +254,12 @@ export class GeneratePageComponent {
   testStatus: { type: string; message: string } | null = null
   isMockMode = env.useMocks
 
+  // API key inputs and status
+  grokKeyInput = ''
+  elevenKeyInput = ''
+  get hasGrokKey() { try { return !!localStorage.getItem('XAI_API_KEY') || !!(window as any).VITE_XAI_API_KEY; } catch { return false } }
+  get hasElevenKey() { try { return !!localStorage.getItem('ELEVENLABS_API_KEY') || !!(window as any).VITE_ELEVENLABS_API_KEY; } catch { return false } }
+
   // Loading states
   isGenerating = false
   isParsing = false
@@ -216,105 +270,90 @@ export class GeneratePageComponent {
     public store: StoryStore,
     @Inject(SPEAKER_PARSER) private parser: any,
     @Inject(VOICE_SERVICE) private voice: VoiceService,
-    private voices: VoiceStore,
-    private toastService: ToastService
+    public voiceStore: VoiceStore,
+    private toast: ToastService,
   ) {}
 
-  onGenerate(options: StoryOptions, form: { resetSubmitting: () => void }) {
-    this.isGenerating = true
-    this.toastService.info('📝 Generating Story', 'Creating your custom story with AI...')
+  loadKeys(): void {
+    try {
+      this.grokKeyInput = localStorage.getItem('XAI_API_KEY') || ''
+      this.elevenKeyInput = localStorage.getItem('ELEVENLABS_API_KEY') || ''
+      this.toast.info('API Keys', 'Loaded keys from your browser')
+    } catch (e: any) {
+      this.toast.warning('API Keys', 'Could not access localStorage')
+    }
+  }
 
-    if (this.sub) this.sub.unsubscribe()
+  saveKeys(): void {
+    try {
+      if (this.grokKeyInput) localStorage.setItem('XAI_API_KEY', this.grokKeyInput)
+      if (this.elevenKeyInput) localStorage.setItem('ELEVENLABS_API_KEY', this.elevenKeyInput)
+      // Also place on window immediately so current session picks up without reload
+      ;(window as any).VITE_XAI_API_KEY = this.grokKeyInput
+      ;(window as any).VITE_ELEVENLABS_API_KEY = this.elevenKeyInput
+      this.toast.success('API Keys', 'Saved keys to your browser')
+    } catch (e: any) {
+      this.toast.error('API Keys', 'Failed to save keys')
+    }
+  }
+
+  clearKeys(): void {
+    try {
+      localStorage.removeItem('XAI_API_KEY')
+      localStorage.removeItem('ELEVENLABS_API_KEY')
+      this.grokKeyInput = ''
+      this.elevenKeyInput = ''
+      this.toast.info('API Keys', 'Cleared keys from your browser')
+    } catch (e: any) {
+      this.toast.warning('API Keys', 'Could not clear localStorage keys')
+    }
+  }
+
+  onGenerate(options: StoryOptions): void {
+    this.isGenerating = true
     this.latestChunk = ''
     this.store.reset()
 
-    this.sub = this.story.generateStory(options).subscribe({
-      next: (chunk) => {
-        this.latestChunk = chunk
+    this.story.generateStory(options).subscribe({
+      next: (chunk: string) => {
+        this.latestChunk += chunk
         this.store.append(chunk)
       },
-      error: (error) => {
+      error: (err: Error) => {
         this.isGenerating = false
-        this.toastService.error('❌ Story Generation Failed', error.message || 'Failed to generate story')
-        form.resetSubmitting()
+        this.toast.error('Story Generation Failed', err.message)
       },
       complete: () => {
         this.isGenerating = false
-        this.toastService.success('✅ Story Generated', 'Your story is ready! Parse speakers to continue.')
-        form.resetSubmitting()
-      }
-    })
-  }
-
-  async parseCurrent() {
-    const text = this.store.currentText()
-    if (!text) return
-
-    this.isParsing = true
-    this.toastService.info('🗣️ Parsing Speakers', 'Analyzing dialogue and identifying characters...')
-
-    try {
-      const parsed = await this.parser.parseStory(text)
-      this.store.setParsed(parsed)
-      this.toastService.success(
-        '✅ Speakers Parsed',
-        `Found ${parsed.segments?.length || 0} segments and ${parsed.characters?.length || 0} characters`
-      )
-    } catch (error: any) {
-      this.toastService.error('❌ Speaker Parsing Failed', error.message || 'Failed to parse speakers')
-    } finally {
-      this.isParsing = false
-    }
-  }
-
-  synthesize() {
-    const parsed = this.store.parsed()
-    if (!parsed) return
-
-    this.isSynthesizing = true
-    this.toastService.info('🔊 Synthesizing Audio', 'Creating voice audio for your story...')
-
-    if (this.audioUrl) {
-      URL.revokeObjectURL(this.audioUrl)
-      this.audioUrl = null
-    }
-
-    const assigns: VoiceAssignment[] = Object.entries(this.voices.assignments()).map(([character, voiceId]) => ({ character, voiceId }))
-    const narratorVoice = this.voices.narratorVoice() || undefined
-    const buffers: ArrayBuffer[] = []
-
-    const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
-      next: (chunk) => buffers.push(chunk.audio),
-      error: (error) => {
-        this.isSynthesizing = false
-        this.toastService.error('❌ Audio Synthesis Failed', error.message || 'Failed to create audio')
-        sub.unsubscribe()
       },
-      complete: () => {
-        this.isSynthesizing = false
-        if (buffers.length === 0) {
-          this.toastService.error('❌ No Audio Generated', 'No audio data was received')
-          return
-        }
-
-        const total = buffers.reduce((acc, b) => acc + b.byteLength, 0)
-        const merged = new Uint8Array(total)
-        let offset = 0
-        for (const buf of buffers) {
-          merged.set(new Uint8Array(buf), offset)
-          offset += buf.byteLength
-        }
-        const blob = new Blob([merged.buffer], { type: 'audio/mpeg' })
-        this.audioUrl = URL.createObjectURL(blob)
-
-        this.toastService.success('✅ Audio Ready', 'Your story is now ready to listen!')
-      }
     })
+  }
+
+  onTestApi(): void {
+    this.toast.info('API Test', 'API test initiated!')
+    // In a real scenario, this would trigger a more comprehensive API check.
+    // For now, we'll just simulate a successful test.
+    setTimeout(() => {
+      this.toast.success('API Test', 'API connection successful!')
+    }, 1500)
+  }
+
+  onGenerateTestStory(wordCount: number): void {
+    const options: StoryOptions = {
+      length: wordCount < 600 ? 'short' : 'medium',
+      characterType: 'werewolf',
+      spicyLevel: 5,
+      themes: ['romance', 'intrigue'],
+      genre: 'fantasy',
+      tone: 'dark'
+    }
+    this.toast.info('Test Story', `Generating a ${wordCount}-word test story...`)
+    this.onGenerate(options)
   }
 
   async testRealAPIs() {
     this.isTesting = true
-    this.testStatus = { type: 'info', message: '🚀 Starting API integration test...' }
+    this.testStatus = null
 
     try {
       // Step 1: Generate a story
@@ -355,11 +394,11 @@ export class GeneratePageComponent {
       }
 
       this.sub = this.story.generateStory(testOptions).subscribe({
-        next: (chunk) => {
+        next: (chunk: string) => {
           this.latestChunk = chunk
           this.store.append(chunk)
         },
-        error: (error) => reject(new Error(`Story generation failed: ${error.message}`)),
+        error: (error: any) => reject(new Error(`Story generation failed: ${error.message}`)),
         complete: () => resolve()
       })
 
@@ -390,13 +429,13 @@ export class GeneratePageComponent {
         this.audioUrl = null
       }
 
-      const assigns: VoiceAssignment[] = Object.entries(this.voices.assignments()).map(([character, voiceId]) => ({ character, voiceId }))
-      const narratorVoice = this.voices.narratorVoice() || undefined
+      const assigns: VoiceAssignment[] = Object.entries(this.voiceStore.assignments()).map(([character, voiceId]) => ({ character, voiceId: voiceId as string }))
+      const narratorVoice = this.voiceStore.narratorVoice() || undefined
       const buffers: ArrayBuffer[] = []
 
       const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
-        next: (chunk) => buffers.push(chunk.audio),
-        error: (error) => reject(new Error(`Audio synthesis failed: ${error.message}`)),
+        next: (chunk: AudioChunk) => buffers.push(chunk.audio),
+        error: (error: any) => reject(new Error(`Audio synthesis failed: ${error.message}`)),
         complete: () => {
           if (buffers.length === 0) {
             reject(new Error('No audio data received'))

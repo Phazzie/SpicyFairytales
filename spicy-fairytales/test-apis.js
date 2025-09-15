@@ -33,6 +33,7 @@ function loadEnv() {
 const env = loadEnv();
 const grokKey = env.VITE_GROK_API_KEY;
 const elevenLabsKey = env.VITE_ELEVENLABS_API_KEY;
+const grokModel = env.VITE_GROK_MODEL || 'grok-4-0709';
 
 console.log('🔑 API Keys Status:');
 console.log(`   Grok: ${grokKey && grokKey !== 'your_grok_api_key_here' ? '✅ Configured' : '❌ Missing/Placeholder'}`);
@@ -59,7 +60,7 @@ async function testGrokAPI() {
           role: 'user',
           content: 'Write a short 2-sentence fairy tale about a brave mouse.'
         }],
-        model: 'grok-beta',
+        model: grokModel,
         max_tokens: 100,
       }),
     });
