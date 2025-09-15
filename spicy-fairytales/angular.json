@@ -63,13 +63,47 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "8kB",
+                  "maximumError": "12kB"
                 }
               ],
               "outputHashing": "all",
               "baseHref": "/SpicyFairytales/",
               "deployUrl": "/SpicyFairytales/",
+              "outputMode": "static",
+              "ssr": false
+            },
+            "vercel": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kB",
+                  "maximumError": "12kB"
+                }
+              ],
+              "outputHashing": "all",
+              "outputMode": "static",
+              "ssr": false
+            },
+            "staging": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "8kB",
+                  "maximumError": "12kB"
+                }
+              ],
+              "outputHashing": "all",
               "outputMode": "static",
               "ssr": false
             },
@@ -89,6 +123,12 @@
             },
             "github-pages": {
               "buildTarget": "spicy-fairytales:build:github-pages"
+            },
+            "vercel": {
+              "buildTarget": "spicy-fairytales:build:vercel"
+            },
+            "staging": {
+              "buildTarget": "spicy-fairytales:build:staging"
             },
             "development": {
               "buildTarget": "spicy-fairytales:build:development"

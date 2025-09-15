@@ -39,7 +39,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd spicy-fairytales
-        npm ci
+        PUPPETEER_SKIP_DOWNLOAD=true npm ci
 
     - name: Build for production
       run: |
@@ -78,7 +78,7 @@ jobs:
     - name: Install dependencies
       run: |
         cd spicy-fairytales
-        npm ci
+        PUPPETEER_SKIP_DOWNLOAD=true npm ci
 
     - name: Build for staging
       run: |

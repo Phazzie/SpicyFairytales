@@ -373,7 +373,6 @@ import type { StoryOptions } from '../../shared/contracts'
         font-size: 1.1rem;
         filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
       }
-      }
 
       .chip-content {
         background: var(--bg-primary, white);
