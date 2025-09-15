@@ -15,6 +15,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, from } from 'rxjs';
 import { VoiceService, ParsedStory, VoiceAssignment, AudioChunk, NarratorVoiceAssignment } from '../shared/contracts';
+import { env } from '../shared/env';
 
 @Injectable()
 export class ElevenLabsVoiceService implements VoiceService {
@@ -164,11 +165,7 @@ export class ElevenLabsVoiceService implements VoiceService {
   }
 
   private getApiKey(): string | null {
-    // Try environment variable first
-    const envKey = (window as any).VITE_ELEVENLABS_API_KEY || (import.meta as any).env?.VITE_ELEVENLABS_API_KEY;
-    if (envKey) return envKey;
-
-    // Fallback to localStorage for development
-    return localStorage.getItem('ELEVENLABS_API_KEY');
+    // Use environment configuration
+    return env.elevenLabsApiKey || null
   }
 }

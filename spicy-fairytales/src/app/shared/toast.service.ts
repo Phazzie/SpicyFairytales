@@ -21,6 +21,16 @@ export interface Toast {
   title: string;
   message: string;
   duration?: number;
+  allowDismiss?: boolean;
+  action?: {
+    label: string;
+    callback: () => void;
+  };
+}
+
+export interface ToastOptions {
+  duration?: number;
+  allowDismiss?: boolean;
   action?: {
     label: string;
     callback: () => void;
@@ -64,19 +74,47 @@ export class ToastService {
   }
 
   // Convenience methods
-  success(title: string, message: string, duration?: number) {
-    return this.show({ type: 'success', title, message, duration });
+  success(title: string, message: string, options?: ToastOptions) {
+    return this.show({ 
+      type: 'success', 
+      title, 
+      message, 
+      duration: options?.duration,
+      allowDismiss: options?.allowDismiss,
+      action: options?.action
+    });
   }
 
-  error(title: string, message: string, duration?: number) {
-    return this.show({ type: 'error', title, message, duration });
+  error(title: string, message: string, options?: ToastOptions) {
+    return this.show({ 
+      type: 'error', 
+      title, 
+      message, 
+      duration: options?.duration || 8000, // Longer duration for errors
+      allowDismiss: options?.allowDismiss ?? true,
+      action: options?.action
+    });
   }
 
-  info(title: string, message: string, duration?: number) {
-    return this.show({ type: 'info', title, message, duration });
+  info(title: string, message: string, options?: ToastOptions) {
+    return this.show({ 
+      type: 'info', 
+      title, 
+      message, 
+      duration: options?.duration,
+      allowDismiss: options?.allowDismiss,
+      action: options?.action
+    });
   }
 
-  warning(title: string, message: string, duration?: number) {
-    return this.show({ type: 'warning', title, message, duration });
+  warning(title: string, message: string, options?: ToastOptions) {
+    return this.show({ 
+      type: 'warning', 
+      title, 
+      message, 
+      duration: options?.duration,
+      allowDismiss: options?.allowDismiss,
+      action: options?.action
+    });
   }
 }
