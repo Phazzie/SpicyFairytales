@@ -31,7 +31,7 @@ function loadEnv() {
 }
 
 const env = loadEnv();
-const grokKey = env.VITE_GROK_API_KEY;
+const grokKey = env.VITE_XAI_API_KEY;
 const elevenLabsKey = env.VITE_ELEVENLABS_API_KEY;
 
 console.log('🔑 API Keys Status:');

@@ -68,7 +68,7 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 
    Edit `.env` with your API keys:
    ```env
-   VITE_GROK_API_KEY=your_grok_api_key
+   VITE_XAI_API_KEY=your_xai_api_key
    VITE_ELEVENLABS_API_KEY=your_elevenlabs_api_key
    VITE_USE_MOCKS=false
    ```
