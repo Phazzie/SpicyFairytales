@@ -1,0 +1,16 @@
+# Ignore source files and build artifacts that aren't needed for deployment
+spicy-fairytales/src/
+spicy-fairytales/node_modules/
+spicy-fairytales/.angular/
+spicy-fairytales/dist/spicy-fairytales/server/
+spicy-fairytales/dist/spicy-fairytales/3rdpartylicenses.txt
+spicy-fairytales/dist/spicy-fairytales/prerendered-routes.json
+*.md
+.github/
+docs/
+scripts/
+DEPLOYMENT_GUIDE.md
+IMPLEMENTATION_GUIDE.md
+LESSONS_LEARNED.md
+PRD.md
+CHANGELOG.md

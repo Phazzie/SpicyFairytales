@@ -1,29 +1,26 @@
 {
   "version": 2,
   "name": "spicy-fairytales",
-  "buildCommand": "cd spicy-fairytales && npm run build",
+  "buildCommand": "cd spicy-fairytales && npm ci && npm run build",
   "outputDirectory": "spicy-fairytales/dist/spicy-fairytales/browser",
-  "installCommand": "cd spicy-fairytales && npm ci",
+  "installCommand": null,
   "framework": null,
-  "functions": {
-    "api/render.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
-      "destination": "/api/render"
+      "destination": "/index.html"
     }
   ],
   "env": {
     "NODE_ENV": "production",
-    "VITE_USE_MOCKS": "false"
+    "VITE_USE_MOCKS": "false",
+    "PUPPETEER_SKIP_DOWNLOAD": "true"
   },
   "build": {
     "env": {
       "NODE_ENV": "production",
-      "VITE_USE_MOCKS": "false"
+      "VITE_USE_MOCKS": "false",
+      "PUPPETEER_SKIP_DOWNLOAD": "true"
     }
   },
   "headers": [
