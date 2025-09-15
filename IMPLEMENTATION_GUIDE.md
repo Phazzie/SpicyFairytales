@@ -81,7 +81,7 @@ Export System (Day 5)
 
 Grok Integration (Day 1)
 - [x] `HttpStoryService` with streaming fetch + ReadableStream
-- [x] Environment variable configuration (VITE_GROK_API_KEY)
+- [x] Environment variable configuration (VITE_XAI_API_KEY)
 - [x] Error handling for API failures and rate limits
 
 Speaker Parser (Day 2)
@@ -182,7 +182,7 @@ Use Angular signals for simple UI state; RxJS for streaming and service seams.
 ## Environment Variables
 
 Document in `README.md` and inject via `EnvironmentService`:
-- `GROK_API_KEY`
+- `XAI_API_KEY`
 - `ELEVENLABS_API_KEY`
 - `USE_MOCKS` (boolean)
 
@@ -228,6 +228,6 @@ npm test     # Run basic tests
 npm run type-check  # Validate contracts
 
 # Environment variables (.env)
-VITE_GROK_API_KEY=your_key_here
+VITE_XAI_API_KEY=your_key_here
 VITE_ELEVENLABS_API_KEY=your_key_here
 ```

@@ -25,7 +25,7 @@ console.log('✅ .env file found');
 // Check for required API keys in .env
 const envContent = fs.readFileSync(envPath, 'utf8');
 const requiredKeys = [
-  'VITE_GROK_API_KEY',
+  'VITE_XAI_API_KEY',
   'VITE_ELEVENLABS_API_KEY'
 ];
 
@@ -40,7 +40,7 @@ if (missingKeys.length > 0) {
   console.log('❌ Missing or placeholder API keys:');
   missingKeys.forEach(key => console.log(`   - ${key}`));
   console.log('\n🔑 Get your API keys:');
-  console.log('   - Grok: https://console.x.ai/');
+  console.log('   - X.AI: https://console.x.ai/');
   console.log('   - ElevenLabs: https://elevenlabs.io/');
   console.log('\n💡 For development, you can set VITE_USE_MOCKS=true to use mock services\n');
   process.exit(1);

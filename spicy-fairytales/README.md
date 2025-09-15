@@ -39,7 +39,7 @@ cp .env.example .env
 
 Edit `.env` and add your API keys:
 ```bash
-VITE_GROK_API_KEY=your_grok_api_key_here
+VITE_XAI_API_KEY=your_xai_api_key_here
 VITE_ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
 VITE_USE_MOCKS=false  # Set to true for development without API keys
 ```
@@ -58,7 +58,7 @@ The application will be available at `http://localhost:4200`.
 #### Grok API (x.ai)
 1. Visit [console.x.ai](https://console.x.ai/)
 2. Create an account and get your API key
-3. Add it to your `.env` file as `VITE_GROK_API_KEY`
+3. Add it to your `.env` file as `VITE_XAI_API_KEY`
 
 #### ElevenLabs API
 1. Visit [elevenlabs.io](https://elevenlabs.io/)
