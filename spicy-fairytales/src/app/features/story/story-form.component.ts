@@ -54,24 +54,59 @@ import type { StoryOptions } from '../../shared/contracts'
         </div>
       </div>
 
-      <!-- Story Themes & Concepts -->
-      <div class="form-section">
-        <h3 class="section-title">🎨 Select Story Themes & Concepts</h3>
-        <div class="themes-grid">
-          <label class="theme-option" *ngFor="let theme of availableThemes">
+      <!-- Story Themes & Concepts (Condensed) -->
+      <div class="form-section condensed">
+        <h3 class="section-title">🎨 Story Themes</h3>
+        <div class="themes-compact">
+          <label class="theme-chip" *ngFor="let theme of availableThemes">
             <input type="checkbox" [value]="theme.id" (change)="onThemeToggle(theme.id, $event)" />
-            <div class="theme-card">
-              <div class="theme-icon">{{ theme.icon }}</div>
-              <div class="theme-name">{{ theme.name }}</div>
-              <div class="theme-desc">{{ theme.description }}</div>
+            <div class="chip-content">
+              <span class="chip-icon">{{ theme.icon }}</span>
+              <span class="chip-name">{{ theme.name }}</span>
             </div>
           </label>
         </div>
       </div>
 
+      <!-- Time Period Selector -->
+      <div class="form-section">
+        <h3 class="section-title">⏰ Time Period</h3>
+        <div class="period-options">
+          <label class="period-option" *ngFor="let period of timePeriods" [class.selected]="form.get('timePeriod')?.value === period.id">
+            <input type="radio" formControlName="timePeriod" [value]="period.id" />
+            <div class="period-card">
+              <div class="period-icon">{{ period.icon }}</div>
+              <div class="period-name">{{ period.name }}</div>
+              <div class="period-desc">{{ period.desc }}</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Magic System Dial -->
+      <div class="form-section">
+        <h3 class="section-title">✨ Magic System: {{ form.get('magicSystem')?.value }}/10</h3>
+        <div class="magic-dial">
+          <input
+            type="range"
+            formControlName="magicSystem"
+            min="1"
+            max="10"
+            step="1"
+            class="magic-slider"
+          />
+          <div class="magic-labels">
+            <span class="magic-label">Mundane</span>
+            <span class="magic-label">Mystical</span>
+            <span class="magic-label">Arcane</span>
+          </div>
+        </div>
+        <p class="magic-description">{{ getMagicDescription(form.get('magicSystem')?.value) }}</p>
+      </div>
+
       <!-- Spicy Level Meter -->
       <div class="form-section">
-        <h3 class="section-title">🌶️ Spice Level: {{ form.get('spicyLevel')?.value }}/10</h3>
+        <h3 class="section-title">🌶️ Heat Level: {{ form.get('spicyLevel')?.value }}/10</h3>
         <div class="spicy-meter">
           <input
             type="range"
@@ -82,11 +117,10 @@ import type { StoryOptions } from '../../shared/contracts'
             class="spicy-slider"
           />
           <div class="spicy-labels">
-            <span class="spicy-label">Tame</span>
-            <span class="spicy-label">Mild</span>
-            <span class="spicy-label">Spicy</span>
-            <span class="spicy-label">Very Spicy</span>
-            <span class="spicy-label">Inferno</span>
+            <span class="spicy-label">Innocent</span>
+            <span class="spicy-label">Warm</span>
+            <span class="spicy-label">Volcanic</span>
+            <span class="spicy-label">Supernova</span>
           </div>
         </div>
         <p class="spicy-description">{{ getSpicyDescription(form.get('spicyLevel')?.value) }}</p>
@@ -227,29 +261,77 @@ import type { StoryOptions } from '../../shared/contracts'
         line-height: 1.3;
       }
 
-      /* Themes Grid */
-      .themes-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-        gap: 1rem;
+      /* Themes Compact Layout */
+      .themes-compact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
-      .theme-option {
+      .theme-chip {
         cursor: pointer;
         transition: all 0.2s ease;
       }
 
-      .theme-option input[type="checkbox"] {
+      .theme-chip input[type="checkbox"] {
         display: none;
       }
 
-      .theme-option input[type="checkbox"]:checked + .theme-card {
-        border-color: var(--accent-color, #007bff);
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05), rgba(0, 123, 255, 0.02));
+      .theme-chip input[type="checkbox"]:checked + .chip-content {
+        background: var(--accent-color, #007bff);
+        color: white;
+        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
       }
 
-      .theme-card {
+      .chip-content {
+        background: var(--bg-primary, white);
+        border: 2px solid var(--border-color, #ddd);
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .chip-content:hover {
+        border-color: var(--accent-color, #007bff);
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+      }
+
+      .chip-icon {
+        font-size: 1rem;
+      }
+
+      .chip-name {
+        font-weight: 500;
+      }
+
+      /* Period Selection */
+      .period-options {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+      }
+
+      .period-option {
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .period-option input[type="radio"] {
+        display: none;
+      }
+
+      .period-option.selected .period-card {
+        border-color: var(--accent-color, #007bff);
+        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+        transform: translateY(-2px);
+      }
+
+      .period-card {
         background: var(--bg-primary, white);
         border: 2px solid transparent;
         border-radius: 8px;
@@ -259,26 +341,90 @@ import type { StoryOptions } from '../../shared/contracts'
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
 
-      .theme-card:hover {
+      .period-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       }
 
-      .theme-icon {
+      .period-icon {
         font-size: 1.5rem;
         margin-bottom: 0.5rem;
       }
 
-      .theme-name {
+      .period-name {
         font-weight: 600;
         margin-bottom: 0.25rem;
         color: var(--text-primary, #333);
+        font-size: 0.9rem;
       }
 
-      .theme-desc {
+      .period-desc {
+        font-size: 0.75rem;
+        color: var(--text-muted, #666);
+      }
+
+      /* Magic System Dial */
+      .magic-dial {
+        margin: 1rem 0;
+      }
+
+      .magic-slider {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(to right, #9ca3af, #6366f1, #8b5cf6, #d946ef, #ec4899);
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        cursor: pointer;
+      }
+
+      .magic-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--bg-primary, white);
+        border: 2px solid var(--text-primary, #333);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .magic-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--bg-primary, white);
+        border: 2px solid var(--text-primary, #333);
+        cursor: pointer;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      }
+
+      .magic-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 0.5rem;
         font-size: 0.8rem;
         color: var(--text-muted, #666);
-        line-height: 1.3;
+      }
+
+      .magic-description {
+        margin-top: 0.5rem;
+        font-style: italic;
+        color: var(--text-muted, #666);
+        text-align: center;
+        font-size: 0.9rem;
+      }
+
+      /* Condensed form section */
+      .form-section.condensed {
+        padding: 1rem;
+      }
+
+      .form-section.condensed .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
       }
 
       /* Spicy Meter */
@@ -449,9 +595,13 @@ import type { StoryOptions } from '../../shared/contracts'
       /* Responsive Design */
       @media (max-width: 768px) {
         .character-options,
-        .themes-grid,
+        .period-options,
         .length-options {
           grid-template-columns: 1fr;
+        }
+
+        .themes-compact {
+          justify-content: center;
         }
 
         .section-title {
@@ -459,9 +609,14 @@ import type { StoryOptions } from '../../shared/contracts'
         }
 
         .character-card,
-        .theme-card,
+        .period-card,
         .length-card {
           padding: 0.75rem;
+        }
+
+        .chip-content {
+          padding: 0.4rem 0.8rem;
+          font-size: 0.8rem;
         }
       }
     `,
@@ -471,23 +626,26 @@ export class StoryFormComponent {
   @Output() optionsSubmit = new EventEmitter<StoryOptions>()
   protected submitting = signal(false)
 
-  // Available themes for selection
+  // Available themes for selection (condensed)
   protected availableThemes = [
-    { id: 'romance', name: 'Romance', icon: '💕', description: 'Love, passion, relationships' },
-    { id: 'intrigue', name: 'Intrigue', icon: '🕵️', description: 'Mystery, secrets, deception' },
-    { id: 'power', name: 'Power', icon: '👑', description: 'Authority, control, dominance' },
-    { id: 'forbidden', name: 'Forbidden', icon: '🚫', description: 'Taboo desires, secret affairs' },
-    { id: 'transformation', name: 'Transformation', icon: '🔄', description: 'Change, evolution, rebirth' },
-    { id: 'revenge', name: 'Revenge', icon: '⚔️', description: 'Justice, retribution, payback' },
-    { id: 'seduction', name: 'Seduction', icon: '😘', description: 'Temptation, allure, persuasion' },
-    { id: 'dark-desire', name: 'Dark Desire', icon: '🌑', description: 'Hidden cravings, forbidden lust' },
-    { id: 'betrayal', name: 'Betrayal', icon: '🗡️', description: 'Deception, broken trust, revenge' },
-    { id: 'immortality', name: 'Immortality', icon: '⚱️', description: 'Eternal life, timeless love' },
-    { id: 'supernatural', name: 'Supernatural', icon: '👻', description: 'Ghosts, spirits, otherworldly' },
-    { id: 'magic', name: 'Magic', icon: '✨', description: 'Spells, enchantments, mystical' },
-    { id: 'hunt', name: 'The Hunt', icon: '🏹', description: 'Pursuit, chase, primal instinct' },
-    { id: 'curse', name: 'Curse', icon: '📿', description: 'Hexes, maledictions, fate' },
-    { id: 'alliance', name: 'Alliance', icon: '🤝', description: 'Partnerships, pacts, bargains' }
+    { id: 'romance', name: 'Romance', icon: '💕' },
+    { id: 'forbidden', name: 'Forbidden', icon: '🚫' },
+    { id: 'power', name: 'Power', icon: '👑' },
+    { id: 'revenge', name: 'Revenge', icon: '⚔️' },
+    { id: 'seduction', name: 'Seduction', icon: '😘' },
+    { id: 'supernatural', name: 'Supernatural', icon: '👻' },
+    { id: 'magic', name: 'Magic', icon: '✨' },
+    { id: 'betrayal', name: 'Betrayal', icon: '🗡️' }
+  ]
+
+  // Time period options
+  protected timePeriods = [
+    { id: 'ancient', name: 'Ancient', icon: '🏛️', desc: 'Gods & legends' },
+    { id: 'medieval', name: 'Medieval', icon: '🏰', desc: 'Knights & castles' },
+    { id: 'renaissance', name: 'Renaissance', icon: '🎭', desc: 'Art & intrigue' },
+    { id: 'victorian', name: 'Victorian', icon: '🎩', desc: 'Gothic elegance' },
+    { id: 'modern', name: 'Modern', icon: '🏙️', desc: 'Contemporary world' },
+    { id: 'futuristic', name: 'Futuristic', icon: '🚀', desc: 'Sci-fi future' }
   ]
 
   form: FormGroup
@@ -499,6 +657,8 @@ export class StoryFormComponent {
       spicyLevel: [5],
       userIdeas: [''],
       length: ['medium', Validators.required],
+      timePeriod: ['modern', Validators.required],
+      magicSystem: [5]
     })
   }
 
@@ -519,16 +679,32 @@ export class StoryFormComponent {
 
   getSpicyDescription(level: number): string {
     const descriptions = {
-      1: 'Wholesome and tame - perfect for all audiences',
-      2: 'Light and gentle - subtle romantic tension',
-      3: 'Mild warmth - some sensual undertones',
-      4: 'Noticeable heat - romantic and intimate moments',
-      5: 'Balanced spice - mature themes with tasteful sensuality',
-      6: 'Getting spicy - more intense romantic encounters',
-      7: 'Quite spicy - explicit romantic content',
-      8: 'Very spicy - intense and passionate scenes',
-      9: 'Extremely spicy - highly explicit and erotic content',
-      10: 'Inferno level - maximum spice and erotic intensity'
+      1: 'Innocent Whispers - pure and wholesome storytelling',
+      2: 'Gentle Breeze - subtle romantic tension builds',
+      3: 'Warm Embers - mild heat with tender moments',
+      4: 'Dancing Flames - romantic chemistry ignites',
+      5: 'Burning Desire - balanced passion and emotion',
+      6: 'Wildfire Hearts - intense romantic encounters',
+      7: 'Molten Passion - explicit romantic content',
+      8: 'Volcanic Eruption - raw, uninhibited desire', 
+      9: 'Solar Flare - extremely intense erotic content',
+      10: 'Supernova Intensity - maximum heat and passion'
+    }
+    return descriptions[level as keyof typeof descriptions] || descriptions[5]
+  }
+
+  getMagicDescription(level: number): string {
+    const descriptions = {
+      1: 'Mundane World - no magic, pure realism',
+      2: 'Subtle Mysteries - hints of the supernatural',
+      3: 'Hidden Powers - magic exists but concealed',
+      4: 'Emerging Magic - supernatural becomes visible',
+      5: 'Balanced Realm - magic and reality coexist',
+      6: 'Enchanted World - magic is common knowledge',
+      7: 'Spell-Weaver\'s Domain - magic shapes society',
+      8: 'Arcane Mastery - powerful magical forces',
+      9: 'Reality Bender - magic rewrites natural laws',
+      10: 'Pure Sorcery - magic dominates everything'
     }
     return descriptions[level as keyof typeof descriptions] || descriptions[5]
   }
@@ -544,6 +720,8 @@ export class StoryFormComponent {
       spicyLevel: v.spicyLevel,
       userIdeas: v.userIdeas || undefined,
       length: v.length,
+      timePeriod: v.timePeriod,
+      magicSystem: v.magicSystem,
       // Keep these for backward compatibility
       genre: 'dark-fantasy',
       tone: 'dark',

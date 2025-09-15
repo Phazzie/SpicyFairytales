@@ -25,6 +25,9 @@ export interface StoryOptions {
   userIdeas?: string
   spicyLevel?: number // 1-10 scale
   selectedThemes?: string[]
+  // New settings for enhanced customization
+  timePeriod?: 'ancient' | 'medieval' | 'renaissance' | 'victorian' | 'modern' | 'futuristic'
+  magicSystem?: number // 1-10 scale from mundane to high-magic
 }
 
 export interface ParsedStorySegment {
