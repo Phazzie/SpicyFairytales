@@ -22,7 +22,7 @@ export class GrokSpeakerParser implements SpeakerParser {
   async parseStory(text: string): Promise<ParsedStory> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
-      throw new Error('GROK_API_KEY not configured for speaker parsing');
+      throw new Error('XAI_API_KEY not configured for speaker parsing');
     }
 
     try {
@@ -139,10 +139,10 @@ Important:
 
   private getApiKey(): string | null {
     // Try environment variable first
-    const envKey = (window as any).VITE_GROK_API_KEY || (import.meta as any).env?.VITE_GROK_API_KEY;
+  const envKey = (window as any).VITE_XAI_API_KEY || (import.meta as any).env?.VITE_XAI_API_KEY;
     if (envKey) return envKey;
 
     // Fallback to localStorage for development
-    return localStorage.getItem('GROK_API_KEY');
+    return localStorage.getItem('XAI_API_KEY');
   }
 }

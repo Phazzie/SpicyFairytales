@@ -165,7 +165,7 @@ export class ElevenLabsVoiceService implements VoiceService {
 
   private getApiKey(): string | null {
     // Try environment variable first
-    const envKey = (window as any).VITE_ELEVENLABS_API_KEY || (import.meta as any).env?.VITE_ELEVENLABS_API_KEY;
+  const envKey = (window as any).VITE_ELEVENLABS_API_KEY || (import.meta as any).env?.VITE_ELEVENLABS_API_KEY;
     if (envKey) return envKey;
 
     // Fallback to localStorage for development

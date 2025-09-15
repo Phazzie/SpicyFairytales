@@ -179,6 +179,16 @@ import type { StoryOptions } from '../../shared/contracts'
           {{ submitting() ? '✨ Crafting Your Story...' : '🎭 Generate Story' }}
         </button>
       </div>
+
+      <!-- Test Buttons -->
+      <div class="form-section">
+        <h3 class="section-title">🧪 API & Story Tests</h3>
+        <div class="test-buttons">
+          <button (click)="onTestApi()" class="test-btn">API Test</button>
+          <button (click)="onGenerateTestStory(400)" class="test-btn">Generate 400-word story</button>
+          <button (click)="onGenerateTestStory(800)" class="test-btn">Generate 800-word story</button>
+        </div>
+      </div>
     </form>
   `,
   styles: [
@@ -683,6 +693,29 @@ import type { StoryOptions } from '../../shared/contracts'
         transform: none;
       }
 
+      /* Test Buttons */
+      .test-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+
+      .test-btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        background-color: var(--accent-color-secondary, #6c757d);
+        color: white;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+      }
+
+      .test-btn:hover {
+        background-color: var(--accent-color-secondary-hover, #5a6268);
+      }
+
       /* Responsive Design */
       @media (max-width: 768px) {
         .character-options,
@@ -715,6 +748,10 @@ import type { StoryOptions } from '../../shared/contracts'
 })
 export class StoryFormComponent {
   @Output() optionsSubmit = new EventEmitter<StoryOptions>()
+  @Output() onGenerate = new EventEmitter<StoryOptions>()
+  @Output() onTestApi = new EventEmitter<void>()
+  @Output() onGenerateTestStory = new EventEmitter<number>()
+
   protected submitting = signal(false)
 
   // Available themes for selection (condensed)
@@ -800,27 +837,13 @@ export class StoryFormComponent {
     return descriptions[level as keyof typeof descriptions] || descriptions[5]
   }
 
-  onSubmit() {
-    if (this.form.invalid) return
-    this.submitting.set(true)
-
-    const v = this.form.value
-    const options: StoryOptions = {
-      characterType: v.characterType,
-      selectedThemes: v.selectedThemes,
-      spicyLevel: v.spicyLevel,
-      userIdeas: v.userIdeas || undefined,
-      length: v.length,
-      timePeriod: v.timePeriod,
-      magicSystem: v.magicSystem,
-      // Keep these for backward compatibility
-      genre: 'dark-fantasy',
-      tone: 'dark',
-      themes: v.selectedThemes,
-      prompt: v.userIdeas || undefined,
+  onSubmit(): void {
+    if (this.form.valid) {
+      this.submitting.set(true)
+      this.onGenerate.emit(this.form.value as StoryOptions)
+      // Reset submitting state after a delay to show feedback
+      setTimeout(() => this.submitting.set(false), 3000)
     }
-
-    this.optionsSubmit.emit(options)
   }
 
   resetSubmitting() {
