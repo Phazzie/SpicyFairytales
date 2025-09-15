@@ -41,7 +41,7 @@ jobs:
     - name: Run unit tests
       run: |
         cd spicy-fairytales
-        npm test -- --watch=false --browsers=ChromeHeadless
+        npm test -- --watch=false
 
   build:
     runs-on: ubuntu-latest
