@@ -98,6 +98,8 @@ export class HttpStoryService implements StoryService {
     const spicyLevel = options.spicyLevel || 5;
     const selectedThemes = options.selectedThemes || [];
     const userIdeas = options.userIdeas || '';
+    const timePeriod = options.timePeriod || 'modern';
+    const magicSystem = options.magicSystem || 5;
 
     // Base prompt structure
     let prompt = `Write a complete ${wordCount} word story featuring a ${this.getCharacterTypeDescription(characterType)} as the main character.
@@ -105,6 +107,8 @@ export class HttpStoryService implements StoryService {
 STORY REQUIREMENTS:
 - Word count: ${wordCount} words (be precise)
 - Character type: ${this.getCharacterTypeDescription(characterType)}
+- Time period: ${this.getTimePeriodDescription(timePeriod)}
+- Magic system: ${this.getMagicSystemDescription(magicSystem)}
 - Maturity level: ${this.getSpicyLevelDescription(spicyLevel)}
 - Themes to incorporate: ${this.getThemesDescription(selectedThemes)}
 
@@ -112,6 +116,12 @@ ${userIdeas ? `USER IDEAS TO INCORPORATE:\n${userIdeas}\n\n` : ''}`;
 
     // Add character-specific guidance
     prompt += this.getCharacterSpecificGuidance(characterType, spicyLevel);
+
+    // Add time period specific guidance
+    prompt += this.getTimePeriodGuidance(timePeriod, magicSystem);
+
+    // Add magic system guidance
+    prompt += this.getMagicSystemGuidance(magicSystem, timePeriod);
 
     // Add theme integration guidance
     if (selectedThemes.length > 0) {
@@ -125,12 +135,12 @@ ${userIdeas ? `USER IDEAS TO INCORPORATE:\n${userIdeas}\n\n` : ''}`;
     prompt += `
 
 STORY STRUCTURE:
-- Introduction: Set the scene and introduce the ${characterType}
-- Rising Action: Build tension with the selected themes
-- Climax: Peak emotional/intimate moment
-- Resolution: Satisfying conclusion
+- Introduction: Set the scene in the ${timePeriod} ${this.getMagicSystemLevel(magicSystem)} and introduce the ${characterType}
+- Rising Action: Build tension with the selected themes and time period elements
+- Climax: Peak emotional/intimate moment fitting the era and magic level
+- Resolution: Satisfying conclusion consistent with the world-building
 
-Ensure the story flows naturally, maintains consistent characterization, and delivers the requested level of spice and maturity. Write in an engaging, narrative style that draws readers in completely.`;
+Ensure the story flows naturally, maintains consistent characterization for the ${timePeriod} period, respects the magic system level, and delivers the requested level of spice and maturity. Write in an engaging, narrative style that draws readers in completely.`;
 
     return prompt;
   }
@@ -183,6 +193,129 @@ Ensure the story flows naturally, maintains consistent characterization, and del
     };
 
     return themes.map(theme => themeDescriptions[theme] || theme).join(', ');
+  }
+
+  private getTimePeriodDescription(period: string): string {
+    const descriptions = {
+      ancient: 'ancient times with gods, legends, and primordial magic',
+      medieval: 'medieval era with knights, castles, and feudal society',
+      renaissance: 'renaissance period with art, politics, and emerging science',
+      victorian: 'Victorian era with gothic sensibilities and industrial advancement',
+      modern: 'contemporary modern world with technology and urban settings',
+      futuristic: 'futuristic setting with advanced technology and sci-fi elements'
+    };
+    return descriptions[period as keyof typeof descriptions] || descriptions.modern;
+  }
+
+  private getMagicSystemDescription(level: number): string {
+    if (level <= 2) return 'mundane world with little to no magic';
+    if (level <= 4) return 'low-magic setting with subtle supernatural elements';
+    if (level <= 6) return 'balanced magic system where supernatural coexists with reality';
+    if (level <= 8) return 'high-magic world where magic shapes society and daily life';
+    return 'pure magic realm where arcane forces dominate everything';
+  }
+
+  private getMagicSystemLevel(level: number): string {
+    if (level <= 2) return 'realistic world';
+    if (level <= 4) return 'low-magic world';
+    if (level <= 6) return 'balanced magical world';
+    if (level <= 8) return 'high-magic realm';
+    return 'pure sorcery domain';
+  }
+
+  private getTimePeriodGuidance(timePeriod: string, magicLevel: number): string {
+    const baseGuidance = '\n\nTIME PERIOD & SETTING:';
+
+    switch (timePeriod) {
+      case 'ancient':
+        return `${baseGuidance}
+- Incorporate mythological elements and ancient deities
+- Include primitive societies, tribal customs, and ancient rituals
+- Show the raw, untamed nature of the world and its magic
+- Use architecture and technology appropriate to ancient civilizations`;
+
+      case 'medieval':
+        return `${baseGuidance}
+- Include feudal society, knights, nobles, and peasants
+- Incorporate medieval customs, honor codes, and social hierarchies
+- Show castle life, medieval warfare, and chivalric romance
+- Use period-appropriate language and social structures`;
+
+      case 'renaissance':
+        return `${baseGuidance}
+- Include artistic patronage, political intrigue, and scientific discovery
+- Incorporate renaissance courts, merchant families, and cultural flowering
+- Show the tension between tradition and innovation
+- Use elegant language befitting the period's sophistication`;
+
+      case 'victorian':
+        return `${baseGuidance}
+- Include gothic atmosphere, industrial advancement, and social propriety
+- Incorporate Victorian morality, hidden desires, and dark secrets
+- Show the contrast between public respectability and private passion
+- Use formal language with underlying sensuality`;
+
+      case 'modern':
+        return `${baseGuidance}
+- Include contemporary technology, urban settings, and modern social dynamics
+- Incorporate current social issues and lifestyle elements
+- Show how supernatural elements interact with modern life
+- Use contemporary language and cultural references`;
+
+      case 'futuristic':
+        return `${baseGuidance}
+- Include advanced technology, space travel, or cyberpunk elements
+- Incorporate futuristic society structures and technological integration
+- Show how magic and technology might coexist or conflict
+- Use evolved language appropriate to the future setting`;
+
+      default:
+        return `${baseGuidance}
+- Develop the setting appropriate to the time period
+- Include period-specific customs, technology, and social structures`;
+    }
+  }
+
+  private getMagicSystemGuidance(magicLevel: number, timePeriod: string): string {
+    const guidance = '\n\nMAGIC SYSTEM INTEGRATION:';
+
+    if (magicLevel <= 2) {
+      return `${guidance}
+- Keep magic minimal or completely absent
+- Focus on realistic human emotions and relationships
+- Any supernatural elements should be subtle or ambiguous
+- Ground the story in realistic ${timePeriod} period details`;
+    }
+
+    if (magicLevel <= 4) {
+      return `${guidance}
+- Include subtle magical elements that most people don't notice
+- Magic should be rare, hidden, or just emerging
+- Characters may question whether magic is real
+- Blend supernatural elements carefully with ${timePeriod} realism`;
+    }
+
+    if (magicLevel <= 6) {
+      return `${guidance}
+- Magic is known and accepted but not overwhelming
+- Include magical creatures, spells, and supernatural abilities
+- Balance magical solutions with human ingenuity
+- Show how magic fits into ${timePeriod} society`;
+    }
+
+    if (magicLevel <= 8) {
+      return `${guidance}
+- Magic is powerful and shapes daily life and society
+- Include complex magical systems, powerful spells, and magical creatures
+- Magic influences politics, economics, and social structures
+- Show advanced magical integration with ${timePeriod} elements`;
+    }
+
+    return `${guidance}
+- Magic dominates everything in this world
+- Reality bends to magical will, laws of physics are suggestions
+- Include reality-altering spells, god-like magical beings
+- Magic completely transforms what ${timePeriod} means in this reality`;
   }
 
   private getCharacterSpecificGuidance(characterType: string, spicyLevel: number): string {
