@@ -89,6 +89,21 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
+### GitHub Pages Deployment
+
+To build for GitHub Pages deployment:
+
+```bash
+npm run build:github-pages
+```
+
+This creates a static build optimized for GitHub Pages with:
+- Proper base href configuration (`/SpicyFairytales/`)
+- Client-side routing support via 404.html redirect
+- Static asset optimization
+
+The GitHub Pages deployment is automated via GitHub Actions. Simply push to the `main` branch to trigger deployment.
+
 ## Running unit tests
 
 To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:

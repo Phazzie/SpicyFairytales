@@ -72,6 +72,25 @@
               ],
               "outputHashing": "all"
             },
+            "github-pages": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all",
+              "baseHref": "/SpicyFairytales/",
+              "deployUrl": "/SpicyFairytales/",
+              "outputMode": "static",
+              "ssr": false
+            },
             "development": {
               "optimization": false,
               "extractLicenses": false,
@@ -85,6 +104,9 @@
           "configurations": {
             "production": {
               "buildTarget": "spicy-fairytales:build:production"
+            },
+            "github-pages": {
+              "buildTarget": "spicy-fairytales:build:github-pages"
             },
             "development": {
               "buildTarget": "spicy-fairytales:build:development"
