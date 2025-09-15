@@ -204,12 +204,35 @@ const analysis = {
 ### Available Scripts
 
 ```bash
-npm start          # Start development server
-npm run build      # Build for production
-npm test           # Run unit tests
-npm run validate   # Validate environment setup
-npm run test-apis  # Test API integrations
+npm start              # Start development server
+npm run build          # Build for production
+npm run build:github-pages  # Build for GitHub Pages deployment  
+npm test               # Run unit tests
+npm run validate       # Validate environment setup
+npm run test-apis      # Test API integrations
 ```
+
+### Deployment
+
+#### GitHub Pages
+
+The app is automatically deployed to GitHub Pages on every push to the `main` branch:
+
+- **Live Demo**: [https://phazzie.github.io/SpicyFairytales/](https://phazzie.github.io/SpicyFairytales/)
+- **Deployment**: Automated via GitHub Actions
+- **Configuration**: Optimized for static hosting with client-side routing support
+
+The GitHub Pages build uses:
+- Static rendering for optimal loading performance
+- Proper base href configuration for subdirectory deployment
+- SPA routing support via 404.html redirect mechanism
+
+#### Other Platforms
+
+The app can also be deployed to:
+- **Netlify**: Using existing workflows in `.github/workflows/`
+- **Vercel**: Standard Angular deployment
+- **Firebase Hosting**: With Angular Universal support
 
 ### Environment Configuration
 
