@@ -185,38 +185,70 @@ import type { StoryOptions } from '../../shared/contracts'
     `
       .story-form {
         display: grid;
-        gap: 2rem;
-        max-width: 800px;
+        gap: var(--space-xl);
+        max-width: 900px;
         margin: 0 auto;
       }
 
       .form-section {
-        background: var(--bg-secondary, #f8f9fa);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        background: var(--card-bg);
+        backdrop-filter: var(--glass-backdrop);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--glass-border-radius);
+        padding: var(--space-xl);
+        box-shadow: var(--glass-shadow);
+        transition: all var(--transition-normal);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent);
+      }
+
+      .form-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 
+          var(--shadow-xl),
+          0 0 25px rgba(99, 102, 241, 0.1);
+        border-color: rgba(99, 102, 241, 0.2);
+      }
+
+      .form-section.condensed {
+        padding: var(--space-lg);
       }
 
       .section-title {
-        margin: 0 0 1rem 0;
-        color: var(--text-primary, #333);
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin-bottom: var(--space-lg);
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: var(--space-sm);
+        background: var(--accent-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
       }
 
-      /* Character Selection */
+      /* Character Selection - Enhanced */
       .character-options {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--space-lg);
       }
 
       .character-option {
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition-normal);
+        position: relative;
       }
 
       .character-option input[type="radio"] {
@@ -224,63 +256,123 @@ import type { StoryOptions } from '../../shared/contracts'
       }
 
       .character-option.selected .character-card {
-        border-color: var(--accent-color, #007bff);
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
-        transform: translateY(-2px);
+        background: var(--accent-gradient);
+        color: white;
+        transform: translateY(-4px) scale(1.02);
+        box-shadow: 
+          var(--shadow-xl),
+          0 0 30px rgba(99, 102, 241, 0.4);
+        border-color: var(--primary-500);
+      }
+
+      .character-option.selected .character-card::before {
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
       }
 
       .character-card {
-        background: var(--bg-primary, white);
-        border: 2px solid transparent;
-        border-radius: 8px;
-        padding: 1rem;
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: var(--glass-border-radius);
+        padding: var(--space-xl);
         text-align: center;
-        transition: all 0.2s ease;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all var(--transition-normal);
+        backdrop-filter: var(--glass-backdrop);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .character-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.3), transparent);
       }
 
       .character-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        transform: translateY(-3px) scale(1.01);
+        box-shadow: var(--shadow-lg);
+        border-color: var(--primary-500);
       }
 
       .character-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
+        font-size: 3rem;
+        margin-bottom: var(--space-md);
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
       }
 
       .character-name {
-        font-weight: 600;
-        margin-bottom: 0.25rem;
-        color: var(--text-primary, #333);
+        font-weight: 700;
+        font-size: 1.25rem;
+        margin-bottom: var(--space-sm);
+        color: var(--text-color);
       }
 
       .character-desc {
-        font-size: 0.85rem;
-        color: var(--text-muted, #666);
-        line-height: 1.3;
+        font-size: 0.9rem;
+        color: var(--text-secondary);
+        line-height: 1.4;
       }
 
-      /* Themes Compact Layout */
+      .character-option.selected .character-desc {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      /* Theme Chips - Modern Pills */
       .themes-compact {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: var(--space-sm);
       }
 
       .theme-chip {
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: all var(--transition-normal);
+        position: relative;
       }
 
       .theme-chip input[type="checkbox"] {
         display: none;
       }
 
+      .chip-content {
+        display: flex;
+        align-items: center;
+        gap: var(--space-xs);
+        padding: var(--space-sm) var(--space-md);
+        background: var(--card-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-secondary);
+        transition: all var(--transition-normal);
+        backdrop-filter: var(--glass-backdrop);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      .chip-content:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.15);
+        border-color: var(--primary-500);
+      }
+
       .theme-chip input[type="checkbox"]:checked + .chip-content {
-        background: var(--accent-color, #007bff);
+        background: var(--accent-gradient);
         color: white;
-        box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        border-color: var(--primary-600);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 
+          0 6px 20px rgba(99, 102, 241, 0.3),
+          0 0 15px rgba(99, 102, 241, 0.2);
+      }
+
+      .chip-icon {
+        font-size: 1.1rem;
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+      }
       }
 
       .chip-content {
