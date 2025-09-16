@@ -459,4 +459,45 @@ export class GeneratePageComponent {
       setTimeout(() => reject(new Error('Audio synthesis timed out')), 60000)
     })
   }
+
+  synthesize(): void {
+    const parsed = this.store.parsed()
+    if (!parsed) {
+      this.toast.error('Synthesis Error', 'No parsed story available. Please parse speakers first.')
+      return
+    }
+
+    this.isSynthesizing = true
+    this.toast.info('Audio Synthesis', 'Starting audio synthesis...')
+
+    const assigns: VoiceAssignment[] = Object.entries(this.voiceStore.assignments()).map(([character, voiceId]) => ({ character, voiceId: voiceId as string }))
+    const narratorVoice = this.voiceStore.narratorVoice() || undefined
+    const buffers: ArrayBuffer[] = []
+
+    const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
+      next: (chunk: AudioChunk) => buffers.push(chunk.audio),
+      error: (error: any) => {
+        this.isSynthesizing = false
+        this.toast.error('Synthesis Failed', error.message)
+      },
+      complete: () => {
+        this.isSynthesizing = false
+        if (buffers.length === 0) {
+          this.toast.error('Synthesis Error', 'No audio data received')
+          return
+        }
+
+        const total = buffers.reduce((acc, b) => acc + b.byteLength, 0)
+        const merged = new Uint8Array(total)
+        let offset = 0
+        for (const buf of buffers) {
+          merged.set(new Uint8Array(buf), offset)
+          offset += buf.byteLength
+        }
+        const blob = new Blob([merged.buffer], { type: 'audio/mpeg' })
+        this.audioUrl = URL.createObjectURL(blob)
+        this.toast.success('Synthesis Complete', 'Audio generated successfully!')
+      }
+    })
+  }
 }
