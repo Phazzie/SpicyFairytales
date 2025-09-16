@@ -351,6 +351,31 @@ export class GeneratePageComponent {
     this.onGenerate(options)
   }
 
+  parseCurrent(): void {
+    const text = this.store.currentText()
+    if (!text) {
+      this.toast.error('Parse Error', 'No story text available to parse. Please generate a story first.')
+      return
+    }
+
+    this.isParsing = true
+    this.toast.info('Parsing', 'Analyzing dialogue and characters...')
+
+    this.parser.parseStory(text).then((parsed: any) => {
+      if (!parsed.segments || parsed.segments.length === 0) {
+        throw new Error('No segments found in the story')
+      }
+
+      this.store.setParsed(parsed)
+      this.toast.success('Parsing Complete', `Found ${parsed.segments.length} segments and ${parsed.characters.length} characters`)
+    }).catch((error: any) => {
+      this.toast.error('Parse Failed', error.message)
+      console.error('Parse error:', error)
+    }).finally(() => {
+      this.isParsing = false
+    })
+  }
+
   async testRealAPIs() {
     this.isTesting = true
     this.testStatus = null
