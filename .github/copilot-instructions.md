@@ -8,6 +8,8 @@ This document is not just a set of rules; it's a guide to the philosophy behind 
 -   **Fail Fast, Fail Cheap**: Our goal is to find problems at the earliest, cheapest stage. This is why we use a **Mock-First** workflow. A bug caught by a mock costs $0 in API fees. A bug found in production is a thousand times more expensive. Your first instinct should always be to replicate an issue with a mock.
 -   **Proactive Problem-Solving**: Don't just complete the task. Think about its implications. If a change to the `StoryService` might affect how the `SpeakerParser` interprets text, flag it. Find the value others might miss by considering the entire pipeline, not just your isolated component.
 
+-   **Plan Before Coding**: Before coding anything, always generate and tell the user a plan for the next 4-7 things you're going to do.
+
 ## 2. Architecture: The Data Pipeline
 
 The application is a pipeline that transforms data. Understand this flow.
