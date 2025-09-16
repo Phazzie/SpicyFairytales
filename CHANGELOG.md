@@ -13,7 +13,17 @@ The format is based on Keep a Changelog and this project adheres loosely to Sema
   - Verified build passes successfully with all TypeScript checks
 
 ### Enhanced
-- **Modern UI Implementation**: Complete glassmorphism design system
+## [0.3.0] - 2025-09-16
+
+### Fixed
+- **Security Vulnerabilities**: Resolved 2 low severity Vite vulnerabilities (GHSA-g4jq-h2w9-997c, GHSA-jqfw-vq24-v9c3)
+- **TypeScript Compilation Errors**: Fixed 4 critical build errors preventing successful compilation
+- **EventEmitter Usage**: Corrected template bindings from function calls to proper `.emit()` method calls
+- **Missing Methods**: Implemented `parseCurrent()` method with error handling and user feedback
+- **Dependency Security**: Updated @angular/build and Vite to secure versions
+
+### Added
+- **Modern Glassmorphism UI**: Complete visual redesign with contemporary design patterns
   - Floating API test cards with backdrop blur effects
   - Hero section with gradient text and atmospheric backgrounds
   - Card-based architecture with consistent spacing and shadows
