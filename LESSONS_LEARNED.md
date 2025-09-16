@@ -46,6 +46,38 @@ A running log of insights, decisions, and retro items. Keep entries short and ac
 - **API Design**: Optional parameters in service methods provide a clean path for feature flags and gradual rollouts.
 - **Testing Strategy**: The implementation revealed the need for integration tests covering the full audio synthesis pipeline.
 
+## 2025-09-16 — TypeScript Error Resolution & Modern UI
+
+### EventEmitter Pattern Corrections
+- **Template Binding Errors**: Common mistake calling EventEmitter outputs as functions `(click)="output()"` instead of using `.emit()` method `(click)="output.emit()"`.
+- **Error Diagnosis**: TypeScript error TS2348 clearly indicates EventEmitter misuse; systematic search and replace across templates resolved multiple instances.
+- **Component Contract**: Output properties are EventEmitters for parent communication, not callable methods within the component itself.
+
+### Missing Method Implementation
+- **Template-Component Sync**: Template bindings like `(click)="parseCurrent()"` must have corresponding component methods; TypeScript error TS2339 identifies these gaps.
+- **Method Design**: Implemented `parseCurrent()` with proper error handling, loading states, and user feedback using toast notifications.
+- **Code Reuse**: Leveraged existing `testSpeakerParsing()` logic to avoid duplication while adding UI-specific error handling.
+
+### Build & Development Environment
+- **Dependency Management**: Missing `node_modules` caused CLI tool errors; `npm install` resolved missing Angular CLI and other development dependencies.
+- **Build Verification**: Running `npm run build` after fixes confirmed all TypeScript compilation errors resolved successfully.
+- **Directory Context**: Build commands must run from correct project directory; workspace structure affects command execution paths.
+
+### Modern UI Implementation Insights
+- **Glassmorphism Effects**: Backdrop blur and transparent backgrounds create modern visual depth without overwhelming content.
+- **Component Architecture**: Modern UI patterns work best with card-based layouts and consistent spacing systems using CSS custom properties.
+- **Responsive Design**: Mobile-first approach with progressive enhancement ensures compatibility across device types.
+
+### Git Workflow & PR Management
+- **Systematic Fixes**: Grouping related errors (EventEmitter calls, missing methods) into logical commits improves code review process.
+- **Comprehensive Testing**: Build verification before committing prevents breaking changes from reaching the repository.
+- **Documentation Sync**: Updating docs alongside code changes maintains project knowledge base accuracy.
+
+### Error Prevention Strategies
+- **Type Safety**: Strict TypeScript configuration catches template binding errors at compile time rather than runtime.
+- **Component Method Coverage**: Ensure all template bindings have corresponding component methods before finalizing components.
+- **Incremental Development**: Fix errors in small batches to isolate root causes and prevent cascading issues.
+
 ## How to Contribute to This Doc
 - Add a dated section with 3–7 concise bullets.
 - Link to PRs or commits when relevant.
