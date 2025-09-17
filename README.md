@@ -61,7 +61,7 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+
+- Node.js 20.19+
 - npm or yarn
 - Git
 

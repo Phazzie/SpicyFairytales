@@ -15,7 +15,7 @@ An AI-powered story generation application that creates interactive audio fairy 
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20.19+
 - npm or yarn
 - API keys for Grok and ElevenLabs (optional - can use mocks)
 
