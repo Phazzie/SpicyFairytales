@@ -4,6 +4,53 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog and this project adheres loosely to Semantic Versioning.
 
+## [0.4.0] - 2025-09-17
+### Fixed - Critical Security & CI/CD Resolution
+- **🔴 CRITICAL SECURITY**: Removed exposed API keys from .env file
+  - Removed X.AI API key: `FbpieK4I53TKtI5ncBWiuglLHApmhMhVqkWjYklW3x1WYpWQDn668Um284nrmLAT6CGUmyoISkjUPwOy`
+  - Removed ElevenLabs API key: `sk_a9af05974c66e98054c3912a289e61fc92252ff3f3dcf7fc`
+  - **ACTION REQUIRED**: These keys must be revoked immediately from respective consoles
+- **CI/CD Pipeline Fixes**: Resolved conflicts between PR 22 and PR 23
+  - Fixed truncated `ci-cd.yml` workflow that was missing deployment steps
+  - Updated `deploy.yml` to deprecated status with informational notice
+  - Improved Vercel deployment workflow to handle PR vs production deployments
+- **Environment Security**: Hardened environment configuration
+  - Added `.env` to `.gitignore` to prevent future API key leaks
+  - Updated environment service to read from `VITE_USE_MOCKS` environment variable
+  - Set `VITE_USE_MOCKS=true` as secure default for development
+  - Standardized environment variable naming (`VITE_XAI_API_KEY`)
+
+### Added - Documentation & Deployment Infrastructure
+- **Comprehensive Documentation Suite**:
+  - `VERCEL_GUIDE.md`: Complete Vercel CLI usage guide with token management
+  - `SECURITY_AUDIT_REPORT.md`: Full security assessment and remediation status
+  - `DEPLOYMENT_CHECKLIST.md`: Pre/post deployment verification checklist
+  - `CI_CD_CLEANUP_SUMMARY.md`: Summary of workflow improvements and cleanup
+- **Multi-Platform Deployment Support**:
+  - GitHub Pages: Primary deployment platform (automatic on main branch)
+  - Vercel: Secondary deployment with PR previews and production builds
+  - Netlify: Removed unused integration to clean up CI/CD pipeline
+
+### Enhanced - Build System & Developer Experience
+- **Build Verification**: All build targets tested and working
+  - ✅ Default build: `npm run build`
+  - ✅ Vercel build: `npm run build:vercel`
+  - ✅ GitHub Pages build: `npm run build:github-pages`
+  - ✅ Test suite: `npm test` (3 tests passing)
+- **Documentation Updates**: Merged and updated README deployment section
+  - Removed references to unused Netlify deployment
+  - Added comprehensive Vercel CLI management instructions
+  - Clarified active deployment platforms and workflows
+
+### Security
+- **High Priority**: API key exposure resolved but requires immediate key revocation
+- **Environment Protection**: `.gitignore` updated to prevent future credential leaks
+- **Workflow Security**: GitHub Actions pinned to specific commit SHAs
+- **Default Security**: Mock services enabled by default (`VITE_USE_MOCKS=true`)
+
+### Notes
+This release resolves the critical conflicts between PR 22 (security fixes) and PR 23 (CI/CD cleanup) by merging the best aspects of both. The application is now deployment-ready with proper security hardening, but **immediate action is required** to revoke the exposed API keys before production deployment.
+
 ## [0.3.0] - 2025-09-16
 ### Fixed
 - **TypeScript Compilation Errors**: Resolved all critical build-blocking errors

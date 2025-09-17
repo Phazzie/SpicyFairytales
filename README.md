@@ -265,9 +265,9 @@ npx vercel --prod         # Deploy production
 ```
 
 Alternative platforms:
-- **Vercel**: Primary deployment platform with optimized Angular configuration
-- **Netlify**: Alternative deployment option (workflows removed from CI/CD)
-- **Firebase Hosting**: With Angular Universal support
+- Vercel: Primary deployment platform with optimized Angular configuration
+- Netlify: Alternative deployment option (workflows removed from CI/CD)
+- Firebase Hosting: With Angular Universal support
 
 ### Environment Configuration
 
