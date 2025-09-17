@@ -28,20 +28,10 @@ jobs:
         cd spicy-fairytales
         npm ci
 
-    - name: Install Chrome for testing
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y google-chrome-stable
-
-    - name: Run type checking
-      run: |
-        cd spicy-fairytales
-        npm run build
-
     - name: Run unit tests
       run: |
         cd spicy-fairytales
-        npm test -- --watch=false
+        npm test -- --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox
 
   build:
     runs-on: ubuntu-latest
