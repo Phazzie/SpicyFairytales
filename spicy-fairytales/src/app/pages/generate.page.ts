@@ -459,4 +459,41 @@ export class GeneratePageComponent {
       setTimeout(() => reject(new Error('Audio synthesis timed out')), 60000)
     })
   }
+
+  // Add missing methods for template bindings
+  async parseCurrent(): Promise<void> {
+    const text = this.store.currentText();
+    if (!text) {
+      this.toast.warning('Parse Speakers', 'No story text to parse');
+      return;
+    }
+
+    this.isParsing = true;
+    try {
+      await this.testSpeakerParsing();
+      this.toast.success('Parse Speakers', 'Story parsed successfully');
+    } catch (error: any) {
+      this.toast.error('Parse Speakers', error.message);
+    } finally {
+      this.isParsing = false;
+    }
+  }
+
+  async synthesize(): Promise<void> {
+    const parsed = this.store.parsed();
+    if (!parsed) {
+      this.toast.warning('Synthesize Audio', 'No parsed story to synthesize');
+      return;
+    }
+
+    this.isSynthesizing = true;
+    try {
+      await this.testAudioSynthesis();
+      this.toast.success('Synthesize Audio', 'Audio synthesis completed');
+    } catch (error: any) {
+      this.toast.error('Synthesize Audio', error.message);
+    } finally {
+      this.isSynthesizing = false;
+    }
+  }
 }
