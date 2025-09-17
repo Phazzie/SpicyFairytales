@@ -25,7 +25,7 @@ console.log('✅ .env file found');
 // Check for required API keys in .env
 const envContent = fs.readFileSync(envPath, 'utf8');
 const requiredKeys = [
-  'VITE_GROK_API_KEY',
+  'VITE_XAI_API_KEY',
   'VITE_ELEVENLABS_API_KEY'
 ];
 

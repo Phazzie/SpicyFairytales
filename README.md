@@ -11,7 +11,29 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 
 ## ✨ Features
 
-### 🎭 Smart Voice Assignment
+### � Modern Glassmorphism UI
+- **Glassmorphism Design**: Frosted glass effects with backdrop blur for a modern, professional look
+- **Hero Section**: Eye-catching header with floating API test cards and gradient text effects
+- **Card-Based Architecture**: Elegant glassmorphism components with consistent spacing and shadows
+- **Enhanced Animations**: Smooth entrance animations, hover effects, and micro-interactions
+- **Responsive Design**: Mobile-first approach with seamless cross-device experience
+- **Atmospheric Backgrounds**: Animated gradient backgrounds with subtle depth effects
+
+### 🔑 Comprehensive API Management
+- **Local Storage Integration**: Secure browser-based API key storage (no server storage)
+- **Real-Time Key Status**: Live indicators for API key availability and validation
+- **Save/Load/Clear Functionality**: Complete key management with user feedback
+- **Session Persistence**: Keys persist across browser sessions without page reloads
+- **Security Focus**: Keys stored locally only, never transmitted to external servers
+
+### 🧪 Full Pipeline Testing
+- **End-to-End Testing**: Complete workflow validation from story generation to audio synthesis
+- **Real API Integration**: Test actual Grok and ElevenLabs API connectivity
+- **Error Handling**: Comprehensive error detection with detailed user feedback
+- **Timeout Protection**: Automatic timeout handling for long-running operations
+- **Success Validation**: Verification that each pipeline stage completes successfully
+
+### �🎭 Smart Voice Assignment
 - **AI-Powered Analysis**: Automatically analyzes character traits from story content
 - **Intelligent Matching**: Matches voices based on age, gender, personality, and role
 - **Confidence Scoring**: Provides confidence levels and alternative recommendations
@@ -29,17 +51,12 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 - **Streaming Generation**: Real-time story generation with live updates
 - **Customizable Prompts**: Flexible story generation with themes, tones, and lengths
 
-### 🎨 Modern UI/UX
-- **Theme Support**: Light/Dark/Auto themes with system preference detection
-- **Responsive Design**: Works seamlessly on desktop and mobile
-- **Loading States**: Beautiful skeleton loading and progress indicators
-- **Toast Notifications**: Real-time feedback for all user actions
-
 ### 🔧 Developer Experience
 - **Angular 20**: Latest Angular with standalone components and signals
 - **Type Safety**: Full TypeScript with strict type checking
 - **Modular Architecture**: Clean separation of concerns with service seams
 - **Extensible Design**: Built for easy addition of new features
+- **Modern Build System**: Optimized for multiple deployment targets (Vercel, GitHub Pages)
 
 ## 🚀 Quick Start
 
@@ -68,10 +85,16 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 
    Edit `.env` with your API keys:
    ```env
-   VITE_GROK_API_KEY=your_grok_api_key
+   VITE_XAI_API_KEY=your_xai_api_key
    VITE_ELEVENLABS_API_KEY=your_elevenlabs_api_key
    VITE_USE_MOCKS=false
    ```
+
+   **Alternative: Browser-Based Setup**
+   - Skip the `.env` file setup
+   - Use the in-app API key management panel
+   - Keys are stored securely in your browser's localStorage
+   - No server-side storage required
 
 4. **Validate environment**
    ```bash
@@ -90,30 +113,36 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 
 ### Creating Your First Story
 
-1. **Fill out the story form**:
-   - Choose a genre (fantasy, adventure, mystery, etc.)
-   - Set the tone (magical, adventurous, mysterious)
-   - Select story length (short, medium, long)
-   - Add custom themes and prompts
+#### Method 1: Browser-Based (Recommended)
 
-2. **Generate the story**:
+1. **Set up API keys in the browser**:
+   - Open the application
+   - Use the "🔑 API Keys" panel at the top
+   - Paste your xAI (Grok) and ElevenLabs API keys
+   - Click "Save Keys" - they're stored securely in your browser
+
+2. **Test the API integration**:
+   - Click "🔥 Test Real APIs" in the floating test card
+   - This validates your full pipeline: Grok → Speaker Parser → ElevenLabs
+   - Watch the real-time status updates
+
+3. **Create your story**:
+   - Fill out the story form with genre, tone, length, and themes
    - Click "Generate Story" to start AI-powered creation
    - Watch the story stream in real-time
-   - The system automatically parses speakers and identifies characters
 
-3. **Smart Voice Assignment**:
-   - Click "🧠 Smart Assign" for AI-powered voice recommendations
+4. **Parse speakers and assign voices**:
+   - Click "🗣️ Parse Speakers" to identify characters
+   - Use "🧠 Smart Assign" for AI-powered voice recommendations
    - Review suggestions with confidence scores and reasoning
-   - Accept recommendations or manually adjust voices
-   - **Narrator Voice**: Choose a dedicated narrator voice for professional storytelling
-   - The system automatically recommends the best narrator voice based on your story's tone and genre
+   - Choose a dedicated narrator voice for professional storytelling
 
-4. **Synthesize Audio**:
+5. **Generate audio**:
    - Click "🔊 Synthesize Audio" to create professional voice audio
    - Listen to your story with character-appropriate voices
    - Export or share your creation
 
-### API Testing
+#### Method 2: Command Line API Testing
 
 Test the full pipeline with real APIs:
 ```bash
@@ -230,8 +259,8 @@ The GitHub Pages build uses:
 #### Other Platforms
 
 The app can also be deployed to:
-- **Netlify**: Using existing workflows in `.github/workflows/`
-- **Vercel**: Standard Angular deployment
+- **Vercel**: Primary deployment platform with optimized Angular configuration
+- **Netlify**: Alternative deployment option (workflows removed from CI/CD)
 - **Firebase Hosting**: With Angular Universal support
 
 ### Environment Configuration
@@ -269,6 +298,17 @@ The app supports multiple environments:
 ## 📋 Roadmap
 
 ### ✅ Completed Features
+- ✅ **Modern Glassmorphism UI**: Complete visual redesign with frosted glass effects
+- ✅ **Browser-Based API Management**: Secure localStorage key management with save/load/clear
+- ✅ **Full Pipeline Testing**: End-to-end API validation with comprehensive error handling
+- ✅ **Real-Time Story Generation**: Streaming story creation with Grok AI integration
+- ✅ **Smart Speaker Parsing**: AI-powered character detection and dialogue segmentation
+- ✅ **Professional Audio Synthesis**: ElevenLabs integration with multi-voice support
+- ✅ **Intelligent Voice Assignment**: AI-powered voice matching with confidence scoring
+- ✅ **Narrator Voice System**: Dedicated narrator voice with smart recommendations
+- ✅ **Responsive Design**: Mobile-first approach with cross-device compatibility
+- ✅ **TypeScript Error Resolution**: All compilation errors fixed for stable builds
+- ✅ **Multi-Platform Deployment**: Vercel and GitHub Pages support
 - [x] Smart voice assignment with AI analysis
 - [x] Real-time story generation streaming
 - [x] Professional voice synthesis

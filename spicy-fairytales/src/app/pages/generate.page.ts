@@ -351,6 +351,31 @@ export class GeneratePageComponent {
     this.onGenerate(options)
   }
 
+  parseCurrent(): void {
+    const text = this.store.currentText()
+    if (!text) {
+      this.toast.error('Parse Error', 'No story text available to parse. Please generate a story first.')
+      return
+    }
+
+    this.isParsing = true
+    this.toast.info('Parsing', 'Analyzing dialogue and characters...')
+
+    this.parser.parseStory(text).then((parsed: any) => {
+      if (!parsed.segments || parsed.segments.length === 0) {
+        throw new Error('No segments found in the story')
+      }
+
+      this.store.setParsed(parsed)
+      this.toast.success('Parsing Complete', `Found ${parsed.segments.length} segments and ${parsed.characters.length} characters`)
+    }).catch((error: any) => {
+      this.toast.error('Parse Failed', error.message)
+      console.error('Parse error:', error)
+    }).finally(() => {
+      this.isParsing = false
+    })
+  }
+
   async testRealAPIs() {
     this.isTesting = true
     this.testStatus = null
@@ -457,6 +482,47 @@ export class GeneratePageComponent {
 
       // Timeout after 60 seconds
       setTimeout(() => reject(new Error('Audio synthesis timed out')), 60000)
+    })
+  }
+
+  synthesize(): void {
+    const parsed = this.store.parsed()
+    if (!parsed) {
+      this.toast.error('Synthesis Error', 'No parsed story available. Please parse speakers first.')
+      return
+    }
+
+    this.isSynthesizing = true
+    this.toast.info('Audio Synthesis', 'Starting audio synthesis...')
+
+    const assigns: VoiceAssignment[] = Object.entries(this.voiceStore.assignments()).map(([character, voiceId]) => ({ character, voiceId: voiceId as string }))
+    const narratorVoice = this.voiceStore.narratorVoice() || undefined
+    const buffers: ArrayBuffer[] = []
+
+    const sub = this.voice.synthesize(parsed, assigns, narratorVoice).subscribe({
+      next: (chunk: AudioChunk) => buffers.push(chunk.audio),
+      error: (error: any) => {
+        this.isSynthesizing = false
+        this.toast.error('Synthesis Failed', error.message)
+      },
+      complete: () => {
+        this.isSynthesizing = false
+        if (buffers.length === 0) {
+          this.toast.error('Synthesis Error', 'No audio data received')
+          return
+        }
+
+        const total = buffers.reduce((acc, b) => acc + b.byteLength, 0)
+        const merged = new Uint8Array(total)
+        let offset = 0
+        for (const buf of buffers) {
+          merged.set(new Uint8Array(buf), offset)
+          offset += buf.byteLength
+        }
+        const blob = new Blob([merged.buffer], { type: 'audio/mpeg' })
+        this.audioUrl = URL.createObjectURL(blob)
+        this.toast.success('Synthesis Complete', 'Audio generated successfully!')
+      }
     })
   }
 }
