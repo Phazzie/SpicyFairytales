@@ -243,25 +243,38 @@ npm run test-apis      # Test API integrations
 
 ### Deployment
 
-#### GitHub Pages
+#### Active Deployment Platforms
 
-The app is automatically deployed to GitHub Pages on every push to the `main` branch:
-
+**GitHub Pages (Primary)**
 - **Live Demo**: [https://phazzie.github.io/SpicyFairytales/](https://phazzie.github.io/SpicyFairytales/)
-- **Deployment**: Automated via GitHub Actions
+- **Deployment**: Automatic on every push to `main` branch
 - **Configuration**: Optimized for static hosting with client-side routing support
+- **Workflow**: `.github/workflows/github-pages.yml`
+
+**Vercel (Secondary)**
+- **Deployment**: Automatic preview on PRs, production on `main` branch  
+- **Configuration**: Angular-optimized with SPA routing
+- **Workflow**: `.github/workflows/vercel-deploy.yml`
+- **CLI Management**: See [VERCEL_GUIDE.md](./VERCEL_GUIDE.md) for token setup and usage
 
 The GitHub Pages build uses:
 - Static rendering for optimal loading performance
 - Proper base href configuration for subdirectory deployment
 - SPA routing support via 404.html redirect mechanism
 
-#### Other Platforms
+#### Deployment Management
 
-The app can also be deployed to:
-- **Netlify**: Using existing workflows in `.github/workflows/`
-- **Vercel**: Standard Angular deployment
-- **Firebase Hosting**: With Angular Universal support
+For Vercel CLI usage and token management:
+```bash
+# See comprehensive guide
+cat VERCEL_GUIDE.md
+
+# Quick commands
+npx vercel login          # Authenticate
+npx vercel whoami         # Check login status
+npx vercel                # Deploy preview
+npx vercel --prod         # Deploy production
+```
 
 ### Environment Configuration
 

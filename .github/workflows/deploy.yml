@@ -1,94 +1,38 @@
-name: Production Deployment
+name: Legacy Deployment Workflow - DEPRECATED
+
+# This workflow has been deprecated in favor of GitHub Pages and Vercel deployments
+# Kept for reference but disabled. Netlify integration has been removed.
 
 on:
-  release:
-    types: [published]
+  # Workflow disabled - uncomment below to re-enable if needed
+  # release:
+  #   types: [published]
+  # workflow_dispatch:
   workflow_dispatch:
     inputs:
       environment:
-        description: 'Deployment environment'
-        required: true
-        default: 'production'
+        description: 'This workflow is deprecated. Use GitHub Pages or Vercel instead.'
+        required: false
+        default: 'deprecated'
         type: choice
         options:
-        - production
-        - staging
+        - deprecated
 
 jobs:
-  deploy-production:
+  deprecated-notice:
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || github.event.inputs.environment == 'production'
-
-    environment:
-      name: production
-      url: https://spicyfairytales.com
-
+    if: github.event.inputs.environment == 'deprecated'
+    
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: spicy-fairytales/package-lock.json
-
-    - name: Install dependencies
+    - name: Notice - Workflow Deprecated  
       run: |
-        cd spicy-fairytales
-        PUPPETEER_SKIP_DOWNLOAD=true npm ci
-
-    - name: Build for production
-      run: |
-        cd spicy-fairytales
-        npm run build -- --configuration production
-
-    - name: Deploy to production
-      uses: netlify/actions/cli@master
-      with:
-        args: deploy --dir=dist/spicy-fairytales --prod
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
-  deploy-staging:
-    runs-on: ubuntu-latest
-    if: github.event.inputs.environment == 'staging'
-
-    environment:
-      name: staging
-      url: https://staging.spicyfairytales.com
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: spicy-fairytales/package-lock.json
-
-    - name: Install dependencies
-      run: |
-        cd spicy-fairytales
-        PUPPETEER_SKIP_DOWNLOAD=true npm ci
-
-    - name: Build for staging
-      run: |
-        cd spicy-fairytales
-        npm run build -- --configuration staging
-
-    - name: Deploy to staging
-      uses: netlify/actions/cli@master
-      with:
-        args: deploy --dir=dist/spicy-fairytales --alias=staging
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+        echo "⚠️  This deployment workflow has been deprecated."
+        echo "🚀 Active deployments now use:"
+        echo "   • GitHub Pages: Automatic on main branch push"
+        echo "   • Vercel: Configured with vercel-deploy.yml workflow"
+        echo ""
+        echo "💡 For manual deployments:"
+        echo "   • GitHub Pages: Use github-pages.yml workflow"
+        echo "   • Vercel: Use vercel-deploy.yml workflow or Vercel CLI"
+        echo ""
+        echo "🗑️  Netlify integration has been removed as it was unused."
