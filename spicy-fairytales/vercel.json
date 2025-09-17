@@ -1,27 +1,8 @@
 {
   "version": 2,
-  "name": "spicy-fairytales",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist/spicy-fairytales/browser"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "buildCommand": "npm run build:vercel",
-  "devCommand": "npm start",
-  "installCommand": "npm ci",
-  "outputDirectory": "dist/spicy-fairytales/browser",
   "framework": "angular",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "buildCommand": "npm run build:vercel",
+  "outputDirectory": "dist/spicy-fairytales",
+  "installCommand": "npm ci",
+  "devCommand": "npm start"
 }
