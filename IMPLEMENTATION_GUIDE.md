@@ -182,7 +182,7 @@ Use Angular signals for simple UI state; RxJS for streaming and service seams.
 ## Environment Variables
 
 Document in `README.md` and inject via `EnvironmentService`:
-- `GROK_API_KEY`
+- `XAI_API_KEY`
 - `ELEVENLABS_API_KEY`
 - `USE_MOCKS` (boolean)
 
