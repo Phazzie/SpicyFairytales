@@ -46,14 +46,6 @@ jobs:
         cd spicy-fairytales
         npm run build -- --configuration production
 
-    - name: Deploy to production
-      uses: netlify/actions/cli@master
-      with:
-        args: deploy --dir=dist/spicy-fairytales --prod
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-
   deploy-staging:
     runs-on: ubuntu-latest
     if: github.event.inputs.environment == 'staging'
@@ -84,11 +76,3 @@ jobs:
       run: |
         cd spicy-fairytales
         npm run build -- --configuration staging
-
-    - name: Deploy to staging
-      uses: netlify/actions/cli@master
-      with:
-        args: deploy --dir=dist/spicy-fairytales --alias=staging
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}

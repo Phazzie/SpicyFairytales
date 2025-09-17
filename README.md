@@ -259,8 +259,8 @@ The GitHub Pages build uses:
 #### Other Platforms
 
 The app can also be deployed to:
-- **Netlify**: Using existing workflows in `.github/workflows/`
-- **Vercel**: Standard Angular deployment
+- **Vercel**: Primary deployment platform with optimized Angular configuration
+- **Netlify**: Alternative deployment option (workflows removed from CI/CD)
 - **Firebase Hosting**: With Angular Universal support
 
 ### Environment Configuration
