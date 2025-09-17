@@ -5,10 +5,10 @@
 **CRITICAL**: Two API keys were found exposed in the repository and have been documented. **IMMEDIATE ACTION REQUIRED:**
 
 1. **X.AI (Grok) Console**: https://console.x.ai/
-   - **REVOKE IMMEDIATELY**: `FbpieK4I53TKtI5ncBWiuglLHApmhMhVqkWjYklW3x1WYpWQDn668Um284nrmLAT6CGUmyoISkjUPwOy`
+   - **REVOKE IMMEDIATELY**: Exposed X.AI API key (key details removed for security)
 
 2. **ElevenLabs Console**: https://elevenlabs.io/
-   - **REVOKE IMMEDIATELY**: `sk_a9af05974c66e98054c3912a289e61fc92252ff3f3dcf7fc`
+   - **REVOKE IMMEDIATELY**: Exposed ElevenLabs API key (key details removed for security)
 
 ## ✅ FIXES APPLIED
 

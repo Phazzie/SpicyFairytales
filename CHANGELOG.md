@@ -7,9 +7,9 @@ The format is based on Keep a Changelog and this project adheres loosely to Sema
 ## [0.4.0] - 2025-09-17
 ### Fixed - Critical Security & CI/CD Resolution
 - **🔴 CRITICAL SECURITY**: Removed exposed API keys from .env file
-  - Removed X.AI API key: `FbpieK4I53TKtI5ncBWiuglLHApmhMhVqkWjYklW3x1WYpWQDn668Um284nrmLAT6CGUmyoISkjUPwOy`
-  - Removed ElevenLabs API key: `sk_a9af05974c66e98054c3912a289e61fc92252ff3f3dcf7fc`
-  - **ACTION REQUIRED**: These keys must be revoked immediately from respective consoles
+  - Removed X.AI API key (exposed key must be revoked immediately)
+  - Removed ElevenLabs API key (exposed key must be revoked immediately)
+  - **ACTION REQUIRED**: Exposed keys must be revoked immediately from respective consoles
 - **CI/CD Pipeline Fixes**: Resolved conflicts between PR 22 and PR 23
   - Fixed truncated `ci-cd.yml` workflow that was missing deployment steps
   - Updated `deploy.yml` to deprecated status with informational notice
