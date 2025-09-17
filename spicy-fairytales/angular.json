@@ -87,6 +87,8 @@
                 }
               ],
               "outputHashing": "all",
+              "baseHref": "/",
+              "deployUrl": "/",
               "outputMode": "static",
               "ssr": false
             },
