@@ -71,16 +71,6 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
    ```bash
    git clone https://github.com/Phazzie/SpicyFairytales.git
    cd SpicyFairytales/spicy-fairytales
-   For Vercel CLI usage and token management:
-   ```bash
-   # See comprehensive guide
-   cat VERCEL_GUIDE.md
-
-   # Quick commands
-   npx vercel login          # Authenticate
-   npx vercel whoami         # Check login status
-   npx vercel                # Deploy preview
-   npx vercel --prod         # Deploy production
    ```
 
    Alternative platforms:
@@ -273,6 +263,11 @@ npx vercel whoami         # Check login status
 npx vercel                # Deploy preview
 npx vercel --prod         # Deploy production
 ```
+
+Alternative platforms:
+- **Vercel**: Primary deployment platform with optimized Angular configuration
+- **Netlify**: Alternative deployment option (workflows removed from CI/CD)
+- **Firebase Hosting**: With Angular Universal support
 
 ### Environment Configuration
 

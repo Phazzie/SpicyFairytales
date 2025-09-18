@@ -165,7 +165,7 @@ Use Angular signals for simple UI state; RxJS for streaming and service seams.
 - [x] Lint: ESLint + Prettier configured
 - [x] GitHub Actions: Complete CI/CD pipeline with testing, building, and deployment
 - [x] Quality checks: Security scanning, dependency auditing
-- [x] Automated deployment: Netlify integration for staging/production
+- [x] Automated deployment: Vercel integration for staging/production (primary), Netlify available as alternative
 - [x] Dependabot: Automated dependency updates
 - [x] Code owners and PR templates for standardized contributions
 
@@ -182,7 +182,7 @@ Use Angular signals for simple UI state; RxJS for streaming and service seams.
 ## Environment Variables
 
 Document in `README.md` and inject via `EnvironmentService`:
-- `GROK_API_KEY`
+- `XAI_API_KEY`
 - `ELEVENLABS_API_KEY`
 - `USE_MOCKS` (boolean)
 

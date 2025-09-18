@@ -66,6 +66,6 @@ jobs:
         name: dist
         path: spicy-fairytales/dist/
         retention-days: 30
-
   # Preview deployments are handled by Vercel and GitHub Pages
   # Netlify deployment removed as it's not being used
+
