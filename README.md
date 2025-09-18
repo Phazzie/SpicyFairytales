@@ -61,7 +61,7 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 20.19+
+- Node.js 20+
 - npm or yarn
 - Git
 
@@ -73,22 +73,10 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
    cd SpicyFairytales/spicy-fairytales
    ```
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-
-   Edit `.env` with your API keys:
-   ```env
-   VITE_XAI_API_KEY=your_xai_api_key
-   VITE_ELEVENLABS_API_KEY=your_elevenlabs_api_key
-   VITE_USE_MOCKS=false
-   ```
+   Alternative platforms:
+   - **Vercel**: Primary deployment platform with optimized Angular configuration
+   - **Netlify**: Alternative deployment option (workflows removed from CI/CD)
+   - **Firebase Hosting**: Supported with Angular Universal
 
    **Alternative: Browser-Based Setup**
    - Skip the `.env` file setup
@@ -243,22 +231,40 @@ npm run test-apis      # Test API integrations
 
 ### Deployment
 
-#### GitHub Pages
+#### Active Deployment Platforms
 
-The app is automatically deployed to GitHub Pages on every push to the `main` branch:
-
+**GitHub Pages (Primary)**
 - **Live Demo**: [https://phazzie.github.io/SpicyFairytales/](https://phazzie.github.io/SpicyFairytales/)
-- **Deployment**: Automated via GitHub Actions
+- **Deployment**: Automatic on every push to `main` branch
 - **Configuration**: Optimized for static hosting with client-side routing support
+- **Workflow**: `.github/workflows/github-pages.yml`
+
+**Vercel (Secondary)**
+- **Deployment**: Automatic preview on PRs, production on `main` branch  
+- **Configuration**: Angular-optimized with SPA routing
+- **Workflow**: `.github/workflows/vercel-deploy.yml`
+- **CLI Management**: See [VERCEL_GUIDE.md](./VERCEL_GUIDE.md) for token setup and usage
 
 The GitHub Pages build uses:
 - Static rendering for optimal loading performance
 - Proper base href configuration for subdirectory deployment
 - SPA routing support via 404.html redirect mechanism
 
-#### Other Platforms
+#### Deployment Management
 
-The app can also be deployed to:
+For Vercel CLI usage and token management:
+```bash
+# See comprehensive guide
+cat VERCEL_GUIDE.md
+
+# Quick commands
+npx vercel login          # Authenticate
+npx vercel whoami         # Check login status
+npx vercel                # Deploy preview
+npx vercel --prod         # Deploy production
+```
+
+Alternative platforms:
 - **Vercel**: Primary deployment platform with optimized Angular configuration
 - **Netlify**: Alternative deployment option (workflows removed from CI/CD)
 - **Firebase Hosting**: With Angular Universal support
