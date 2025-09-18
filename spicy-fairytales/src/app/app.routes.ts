@@ -17,5 +17,4 @@ import { GeneratePageComponent } from './pages/generate.page';
 
 export const routes: Routes = [
 	{ path: '', component: GeneratePageComponent },
-	{ path: 'generate', component: GeneratePageComponent },
 ];
