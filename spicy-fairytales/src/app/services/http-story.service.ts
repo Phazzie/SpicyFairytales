@@ -41,8 +41,15 @@ export class HttpStoryService implements StoryService {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+        let errorMessage: string;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || `API error: ${response.status} ${response.statusText}`;
+        } catch {
+          const errorText = await response.text();
+          errorMessage = `API error: ${response.status} ${response.statusText} - ${errorText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const reader = response.body?.getReader();

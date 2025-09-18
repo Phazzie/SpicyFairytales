@@ -19,9 +19,13 @@ import {
   writeResponseToNodeResponse,
 } from '@angular/ssr/node';
 import express from 'express';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { pipeline, Readable } from 'node:stream';
 
-const browserDistFolder = join(import.meta.dirname, '../browser');
+// Resolve __dirname in ESM (Node 18/20/22 compatible)
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const browserDistFolder = join(__dirname, '../browser');
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
@@ -29,7 +33,7 @@ const angularApp = new AngularNodeAppEngine();
 /**
  * API endpoints to securely proxy requests to external services.
  */
-app.use(express.json()); // Enable JSON body parsing for API routes
+app.use(express.json({ limit: '1mb' })); // Enable JSON body parsing with size cap for API routes
 
 // Proxy for Grok story generation (streaming)
 app.post('/api/generate-story', async (req, res) => {
@@ -40,6 +44,12 @@ app.post('/api/generate-story', async (req, res) => {
       return;
     }
 
+    // Abort on timeout or when client disconnects
+    const controller = new AbortController();
+    const timeoutMs = Number(process.env['XAI_TIMEOUT_MS'] ?? 120000);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    req.once('close', () => controller.abort());
+
     const externalApiResponse = await fetch('https://api.x.ai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -47,6 +57,7 @@ app.post('/api/generate-story', async (req, res) => {
         'Authorization': `Bearer ${apiKey}`,
       },
       body: JSON.stringify(req.body),
+      signal: controller.signal,
     });
 
     if (!externalApiResponse.ok) {
@@ -55,27 +66,32 @@ app.post('/api/generate-story', async (req, res) => {
       return;
     }
 
-    res.setHeader('Content-Type', 'application/json');
+    // Forward streaming response with proper headers and backpressure
+    res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    (res as any).flushHeaders?.();
     if (externalApiResponse.body) {
       const reader = externalApiResponse.body.getReader();
-      const pump = async () => {
-        try {
+      try {
+        req.once('close', () => reader.cancel().catch(() => {}));
+        // Iteratively read and write with backpressure support
+        while (true) {
           const { done, value } = await reader.read();
-          if (done) {
-            res.end();
-            return;
-          }
-          res.write(value);
-          pump();
-        } catch (error) {
-          console.error('Error pumping stream:', error);
-          res.end();
+          if (done) break;
+          const ok = res.write(Buffer.from(value));
+          if (!ok) await new Promise(resolve => res.once('drain', resolve));
         }
-      };
-      pump();
+      } catch (error) {
+        console.error('Error pumping stream:', error);
+      } finally {
+        res.end();
+      }
     } else {
       res.end();
     }
+    clearTimeout(timeoutId);
   } catch (error) {
     console.error('Story generation proxy failed:', error);
     res.status(500).json({ error: `Story generation failed: ${error instanceof Error ? error.message : 'Unknown error'}` });
@@ -86,10 +102,14 @@ app.post('/api/generate-story', async (req, res) => {
 // Proxy for ElevenLabs speech synthesis
 app.post('/api/synthesize-speech', async (req, res) => {
     try {
-        const { text, voiceId } = req.body;
-        if (!text || !voiceId) {
-            res.status(400).json({ error: 'Missing text or voiceId' });
-            return;
+        const { text, voiceId } = req.body as { text?: unknown; voiceId?: unknown };
+        if (typeof text !== 'string' || text.trim().length === 0) {
+          res.status(400).json({ error: 'Invalid text: must be a non-empty string' });
+          return;
+        }
+        if (typeof voiceId !== 'string' || voiceId.trim().length === 0) {
+          res.status(400).json({ error: 'Invalid voiceId: must be a non-empty string' });
+          return;
         }
 
         const apiKey = process.env['ELEVENLABS_API_KEY'];
@@ -97,6 +117,11 @@ app.post('/api/synthesize-speech', async (req, res) => {
             res.status(500).json({ error: 'ELEVENLABS_API_KEY not configured on server' });
             return;
         }
+
+        const elController = new AbortController();
+        const elTimeoutMs = Number(process.env['ELEVENLABS_TIMEOUT_MS'] ?? 120000);
+        const elTimeoutId = setTimeout(() => elController.abort(), elTimeoutMs);
+        req.once('close', () => elController.abort());
 
         const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
             method: 'POST',
@@ -106,8 +131,8 @@ app.post('/api/synthesize-speech', async (req, res) => {
                 'xi-api-key': apiKey,
             },
             body: JSON.stringify({
-                text: text,
-                model_id: 'eleven_monolingual_v1',
+                text,
+                model_id: process.env['ELEVENLABS_MODEL_ID'] ?? 'eleven_monolingual_v1',
                 voice_settings: {
                     stability: 0.5,
                     similarity_boost: 0.5,
@@ -115,6 +140,7 @@ app.post('/api/synthesize-speech', async (req, res) => {
                     use_speaker_boost: true
                 }
             }),
+            signal: elController.signal,
         });
 
         if (!response.ok) {
@@ -123,9 +149,25 @@ app.post('/api/synthesize-speech', async (req, res) => {
             return;
         }
 
-        const audioBuffer = await response.arrayBuffer();
         res.setHeader('Content-Type', 'audio/mpeg');
-        res.send(Buffer.from(audioBuffer));
+        if (response.body) {
+          try {
+            // Convert WebReadableStream to Node stream and pipe with backpressure
+            const nodeStream = Readable.fromWeb(response.body as any);
+            pipeline(nodeStream, res, (err) => {
+              if (err) {
+                console.error('Streaming audio failed:', err);
+                if (!res.headersSent) res.status(500);
+                if (!res.writableEnded) res.end();
+              }
+            });
+          } finally {
+            clearTimeout(elTimeoutId);
+          }
+        } else {
+          clearTimeout(elTimeoutId);
+          res.status(500).json({ error: 'No audio stream received from ElevenLabs API' });
+        }
     } catch (error) {
         console.error('Speech synthesis proxy failed:', error);
         res.status(500).json({ error: `Speech synthesis failed: ${error instanceof Error ? error.message : 'Unknown error'}` });
@@ -171,20 +213,24 @@ app.use(
     maxAge: '1y',
     index: false,
     redirect: false,
+    setHeaders: (res) => {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    },
   }),
 );
 
 /**
  * Handle all other requests by rendering the Angular application.
  */
-app.use((req, res, next) => {
+const render = (req: any, res: any, next: any) => {
   angularApp
     .handle(req)
     .then((response) =>
       response ? writeResponseToNodeResponse(response, res) : next(),
     )
     .catch(next);
-});
+};
+app.use(render);
 
 /**
  * Start the server if this module is the main entry point.

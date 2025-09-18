@@ -81,8 +81,15 @@ export class ElevenLabsVoiceService implements VoiceService {
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+      let errorMessage: string;
+      try {
+        const errorData = await response.json();
+        errorMessage = errorData.error || `API error: ${response.status} ${response.statusText}`;
+      } catch {
+        const errorText = await response.text();
+        errorMessage = `API error: ${response.status} ${response.statusText} - ${errorText}`;
+      }
+      throw new Error(errorMessage);
     }
 
     return await response.arrayBuffer();
@@ -120,15 +127,20 @@ export class ElevenLabsVoiceService implements VoiceService {
       const response = await fetch('/api/voices');
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
+        let errorMessage: string;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || `API error: ${response.status} ${response.statusText}`;
+        } catch {
+          const errorText = await response.text();
+          errorMessage = `API error: ${response.status} ${response.statusText} - ${errorText}`;
+        }
+        throw new Error(errorMessage);
       }
 
-      const data = await response.json();
-      return data.voices?.map((voice: any) => ({
-        id: voice.voice_id,
-        name: voice.name
-      })) || [];
+      const { voices } = await response.json() as { voices?: Array<{ voice_id: string; name: string }> };
+      if (!Array.isArray(voices)) return [];
+      return voices.map((voice) => ({ id: voice.voice_id, name: voice.name }));
 
     } catch (error) {
       console.error('Failed to list voices:', error);
