@@ -55,7 +55,7 @@ app.post('/api/generate-story', async (req, res) => {
       return;
     }
 
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Content-Type', 'application/json');
     if (externalApiResponse.body) {
       const reader = externalApiResponse.body.getReader();
       const pump = async () => {
