@@ -30,6 +30,8 @@ const browserDistFolder = join(__dirname, '../browser');
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+app.use(express.json({ limit: '1mb' })); // Enable JSON body parsing with size cap for API routes
+
 /**
  * API endpoints to securely proxy requests to external services.
  */
@@ -142,6 +144,7 @@ app.post('/api/synthesize-speech', async (req, res) => {
             }),
             signal: elController.signal,
         });
+        clearTimeout(elTimeoutId);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -151,22 +154,15 @@ app.post('/api/synthesize-speech', async (req, res) => {
 
         res.setHeader('Content-Type', 'audio/mpeg');
         if (response.body) {
-          try {
-            // Convert WebReadableStream to Node stream and pipe with backpressure
-            const nodeStream = Readable.fromWeb(response.body as any);
-            pipeline(nodeStream, res, (err) => {
-              if (err) {
-                console.error('Streaming audio failed:', err);
-                if (!res.headersSent) res.status(500);
-                if (!res.writableEnded) res.end();
-              }
+            pipeline(Readable.fromWeb(response.body as any), res, (err) => {
+                if (err) {
+                    console.error('Streaming audio failed:', err);
+                    if (!res.headersSent) res.status(500);
+                    if (!res.writableEnded) res.end();
+                }
             });
-          } finally {
-            clearTimeout(elTimeoutId);
-          }
         } else {
-          clearTimeout(elTimeoutId);
-          res.status(500).json({ error: 'No audio stream received from ElevenLabs API' });
+            res.status(500).json({ error: 'No audio stream received from ElevenLabs API' });
         }
     } catch (error) {
         console.error('Speech synthesis proxy failed:', error);
@@ -220,7 +216,7 @@ app.use(
 );
 
 /**
- * Handle all other requests by rendering the Angular application.
+ * All regular routes use the Angular engine
  */
 const render = (req: any, res: any, next: any) => {
   angularApp
@@ -230,10 +226,11 @@ const render = (req: any, res: any, next: any) => {
     )
     .catch(next);
 };
-app.use(render);
+app.get('*', render);
+app.head('*', render);
 
 /**
- * Start the server if this module is the main entry point.
+ * Start up the Node server
  * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
  */
 if (isMainModule(import.meta.url)) {
