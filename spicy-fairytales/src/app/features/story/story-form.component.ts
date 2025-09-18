@@ -180,15 +180,7 @@ import type { StoryOptions } from '../../shared/contracts'
         </button>
       </div>
 
-      <!-- Test Buttons -->
-      <div class="form-section">
-        <h3 class="section-title">🧪 API & Story Tests</h3>
-        <div class="test-buttons">
-          <button (click)="onTestApi.emit()" class="test-btn">API Test</button>
-          <button (click)="onGenerateTestStory.emit(400)" class="test-btn">Generate 400-word story</button>
-          <button (click)="onGenerateTestStory.emit(800)" class="test-btn">Generate 800-word story</button>
-        </div>
-      </div>
+      <!-- Test Buttons - Moved to Parent Component -->
     </form>
   `,
   styles: [
