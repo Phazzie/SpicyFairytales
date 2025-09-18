@@ -24,30 +24,25 @@ export class HttpStoryService implements StoryService {
   }
 
   private async *streamStoryFromGrok(options: StoryOptions): AsyncGenerator<string> {
-    const apiKey = this.getApiKey();
-    if (!apiKey) {
-      throw new Error('XAI_API_KEY not configured');
-    }
-
     const prompt = this.buildPrompt(options);
 
     try {
-        const response = await fetch('https://api.x.ai/v1/chat/completions', {
+      const response = await fetch('/api/generate-story', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           messages: [{ role: 'user', content: prompt }],
-              model: 'grok-4-0709',
+          model: 'grok-4-0709',
           stream: true,
           temperature: 0.7,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Grok API error: ${response.status} ${response.statusText}`);
+        const errorData = await response.json();
+        throw new Error(errorData.error || `API error: ${response.status} ${response.statusText}`);
       }
 
       const reader = response.body?.getReader();
@@ -421,12 +416,4 @@ Ensure the story flows naturally, maintains consistent characterization for the 
 - Push boundaries while maintaining narrative coherence`;
   }
 
-  private getApiKey(): string | null {
-    // Try environment variable first
-      const envKey = (window as any).VITE_XAI_API_KEY || (import.meta as any).env?.VITE_XAI_API_KEY;
-    if (envKey) return envKey;
-
-    // Fallback to localStorage for development
-    return localStorage.getItem('XAI_API_KEY');
-  }
 }
