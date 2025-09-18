@@ -32,8 +32,8 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-  // Prefer headless Chrome without sandbox (works in CI containers)
-  browsers: ['ChromeHeadlessNoSandbox'],
+    // Prefer headless Chrome without sandbox (works in CI containers)
+    browsers: ['ChromeHeadlessNoSandbox'],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',

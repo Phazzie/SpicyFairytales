@@ -2,7 +2,7 @@
   "version": 2,
   "framework": "angular",
   "buildCommand": "npm run build:vercel",
-  "outputDirectory": "dist/spicy-fairytales",
+  "outputDirectory": "dist/spicy-fairytales/browser",
   "installCommand": "npm ci",
   "devCommand": "npm start",
   "startCommand": "npm start"

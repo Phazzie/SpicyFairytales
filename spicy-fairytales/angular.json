@@ -88,7 +88,9 @@
               ],
               "outputHashing": "all",
               "baseHref": "/",
-              "deployUrl": "/"
+              "deployUrl": "/",
+              "outputMode": "static",
+              "ssr": false
             },
             "staging": {
               "budgets": [
