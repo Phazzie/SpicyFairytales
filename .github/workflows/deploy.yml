@@ -4,35 +4,27 @@ name: Legacy Deployment Workflow - DEPRECATED
 # Kept for reference but disabled. Netlify integration has been removed.
 
 on:
-  # Workflow disabled - uncomment below to re-enable if needed
-  # release:
-  #   types: [published]
-  # workflow_dispatch:
   workflow_dispatch:
     inputs:
       environment:
         description: 'This workflow is deprecated. Use GitHub Pages or Vercel instead.'
         required: false
         default: 'deprecated'
-        type: choice
-        options:
-        - deprecated
 
 jobs:
   deprecated-notice:
     runs-on: ubuntu-latest
     if: github.event.inputs.environment == 'deprecated'
-    
     steps:
-    - name: Notice - Workflow Deprecated  
-      run: |
-        echo "⚠️  This deployment workflow has been deprecated."
-        echo "🚀 Active deployments now use:"
-        echo "   • GitHub Pages: Automatic on main branch push"
-        echo "   • Vercel: Configured with vercel-deploy.yml workflow"
-        echo ""
-        echo "💡 For manual deployments:"
-        echo "   • GitHub Pages: Use github-pages.yml workflow"
-        echo "   • Vercel: Use vercel-deploy.yml workflow or Vercel CLI"
-        echo ""
-        echo "🗑️  Netlify integration has been removed as it was unused."
+      - name: Notice - Workflow Deprecated
+        run: |
+          echo "⚠️  This deployment workflow has been deprecated."
+          echo "🚀 Active deployments now use:"
+          echo "   • GitHub Pages: Automatic on main branch push"
+          echo "   • Vercel: Configured with vercel-deploy.yml workflow"
+          echo ""
+          echo "💡 For manual deployments:"
+          echo "   • GitHub Pages: Use github-pages.yml workflow"
+          echo "   • Vercel: Use vercel-deploy.yml workflow or Vercel CLI"
+          echo ""
+          echo "🗑️  Netlify integration has been removed as it was unused."

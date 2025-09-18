@@ -71,24 +71,22 @@ Transform your ideas into immersive audio stories with AI-generated narratives a
    ```bash
    git clone https://github.com/Phazzie/SpicyFairytales.git
    cd SpicyFairytales/spicy-fairytales
-   ```
-
-2. **Install dependencies**
+   For Vercel CLI usage and token management:
    ```bash
-   npm install
+   # See comprehensive guide
+   cat VERCEL_GUIDE.md
+
+   # Quick commands
+   npx vercel login          # Authenticate
+   npx vercel whoami         # Check login status
+   npx vercel                # Deploy preview
+   npx vercel --prod         # Deploy production
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-
-   Edit `.env` with your API keys:
-   ```env
-   VITE_XAI_API_KEY=your_xai_api_key
-   VITE_ELEVENLABS_API_KEY=your_elevenlabs_api_key
-   VITE_USE_MOCKS=false
-   ```
+   Alternative platforms:
+   - **Vercel**: Primary deployment platform with optimized Angular configuration
+   - **Netlify**: Alternative deployment option (workflows removed from CI/CD)
+   - **Firebase Hosting**: Supported with Angular Universal
 
    **Alternative: Browser-Based Setup**
    - Skip the `.env` file setup
