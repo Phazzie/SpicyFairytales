@@ -16,6 +16,6 @@ import { Routes } from '@angular/router';
 import { GeneratePageComponent } from './pages/generate.page';
 
 export const routes: Routes = [
-	{ path: '', redirectTo: 'generate', pathMatch: 'full' },
+	{ path: '', component: GeneratePageComponent },
 	{ path: 'generate', component: GeneratePageComponent },
 ];
