@@ -4,5 +4,6 @@
   "buildCommand": "npm run build:vercel",
   "outputDirectory": "dist/spicy-fairytales/browser",
   "installCommand": "npm ci",
-  "devCommand": "npm start"
+  "devCommand": "npm start",
+  "startCommand": "npm start"
 }

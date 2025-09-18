@@ -1,4 +1,14 @@
 module.exports = function (config) {
+  // Ensure CHROME_BIN is set (use Puppeteer's Chromium if not provided by the environment)
+  try {
+    if (!process.env.CHROME_BIN) {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const puppeteer = require('puppeteer');
+      process.env.CHROME_BIN = puppeteer.executablePath();
+    }
+  } catch (_) {
+    // If puppeteer isn't installed, fall back to system chrome if available
+  }
   config.set({
     basePath: '',
     frameworks: ['jasmine', '@angular-devkit/build-angular'],
@@ -22,6 +32,7 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
+    // Prefer headless Chrome without sandbox (works in CI containers)
     browsers: ['ChromeHeadlessNoSandbox'],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
