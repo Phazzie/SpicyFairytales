@@ -5,5 +5,23 @@
   "outputDirectory": "dist/spicy-fairytales/browser",
   "installCommand": "npm ci",
   "devCommand": "npm start",
-  "startCommand": "npm start"
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
