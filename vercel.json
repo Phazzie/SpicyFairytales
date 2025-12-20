@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "buildCommand": "cd spicy-fairytales && npm run build:vercel",
+  "outputDirectory": "spicy-fairytales/dist/spicy-fairytales/browser",
+  "installCommand": "cd spicy-fairytales && npm ci",
+  "devCommand": "cd spicy-fairytales && npm start",
+  "framework": "angular",
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

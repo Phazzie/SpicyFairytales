@@ -89,7 +89,11 @@ ng build
 
 This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
 
-### GitHub Pages Deployment
+### Deployment
+
+This application is deployed as a **static Single Page Application (SPA)** without server-side rendering.
+
+#### GitHub Pages Deployment
 
 To build for GitHub Pages deployment:
 
@@ -103,6 +107,25 @@ This creates a static build optimized for GitHub Pages with:
 - Static asset optimization
 
 The GitHub Pages deployment is automated via GitHub Actions. Simply push to the `main` branch to trigger deployment.
+
+#### Vercel Deployment
+
+To build for Vercel deployment:
+
+```bash
+npm run build:vercel
+```
+
+Vercel deployments use:
+- Static SPA mode with client-side routing
+- Serverless API functions in `/api` directory for:
+  - `/api/generate-story` - Grok AI story generation proxy
+  - `/api/synthesize-speech` - ElevenLabs TTS proxy
+  - `/api/voices` - ElevenLabs voice listing
+
+#### Architecture Note
+
+**SSR Status**: Server-side rendering (SSR) has been **disabled** as of December 2024. The application uses static builds for all deployment targets. Previous SSR-related files (`server.ts`, `main.server.ts`, `app.config.server.ts`) have been removed to eliminate confusion and reduce bundle size.
 
 ## Running unit tests
 
