@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node dist/spicy-fairytales/server/server.mjs",
+    "start": "ng serve",
     "start:dev": "ng serve",
     "build": "ng build",
     "build:github-pages": "ng build --configuration github-pages",
@@ -12,8 +12,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "validate": "node validate-env.js",
-    "test-apis": "node test-apis.js",
-    "serve:ssr:spicy-fairytales": "node dist/spicy-fairytales/server/server.mjs"
+    "test-apis": "node test-apis.js"
   },
   "prettier": {
     "printWidth": 100,
