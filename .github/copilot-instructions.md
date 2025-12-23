@@ -1,80 +1,246 @@
-# Spicy FairyTales - AI Agent Instructions
+# Spicy FairyTales - GitHub Copilot Instructions
 
-This document is not just a set of rules; it's a guide to the philosophy behind Spicy FairyTales. Read this to understand *how* to think when contributing.
+**ALWAYS** follow these instructions first. Only search for additional context if the information here is incomplete or found to be in error.
 
-## 1. Guiding Principles
+## Quick Start Commands (VALIDATED)
 
--   **Correctness > Clarity > Cleverness**: Code must first work as intended. Then, it must be simple enough for a new developer to understand. Only after achieving both should you consider clever optimizations. A "clever" but unreadable solution is technical debt.
--   **Fail Fast, Fail Cheap**: Our goal is to find problems at the earliest, cheapest stage. This is why we use a **Mock-First** workflow. A bug caught by a mock costs $0 in API fees. A bug found in production is a thousand times more expensive. Your first instinct should always be to replicate an issue with a mock.
--   **Proactive Problem-Solving**: Don't just complete the task. Think about its implications. If a change to the `StoryService` might affect how the `SpeakerParser` interprets text, flag it. Find the value others might miss by considering the entire pipeline, not just your isolated component.
+Navigate to the main application directory first:
+```bash
+cd spicy-fairytales
+```
 
--   **Plan Before Coding**: Before coding anything, always generate and tell the user a plan for the next 4-7 things you're going to do.
+**Bootstrap and validate the environment:**
+```bash
+# Install dependencies - NEVER CANCEL: Can take up to 5 minutes due to network
+PUPPETEER_SKIP_DOWNLOAD=true npm install  # Skip puppeteer if network restricted
+npm run validate                           # Validates environment setup
+```
 
-## 2. Architecture: The Data Pipeline
+**Build and test (CRITICAL TIMINGS):**
+```bash
+npm run build                             # NEVER CANCEL: Takes ~20 seconds, set timeout to 60+ seconds
+npm test -- --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox  # NEVER CANCEL: Takes ~20 seconds, set timeout to 60+ seconds
+```
 
-The application is a pipeline that transforms data. Understand this flow.
+**Run the development server:**
+```bash
+npm start                                 # Starts on http://localhost:4200, takes ~10 seconds to build
+```
 
-`StoryOptions` -> **[StoryService]** -> `Raw Story (string)` -> **[SpeakerParser]** -> `ParsedStory (JSON)` -> **[VoiceService]** -> `AudioChunks`
+**API Testing:**
+```bash
+npm run test-apis                         # Tests real API integrations, takes ~20 seconds
+```
 
--   **Contracts are King**: The single source of truth is `src/app/shared/contracts.ts`. All data structures flowing between services **MUST** adhere to these interfaces. UI components should only depend on these contracts, never on a concrete service like `grokService.ts`.
--   **The UI is a "Dumb" Client**: Hooks (e.g., `useStoryGenerator`) are responsible for orchestrating service calls. UI components (`StoryForm.tsx`) should be as simple as possible, taking props and rendering JSX. They should not contain complex business logic.
+## Development Workflow
 
-## 3. Critical Integration Risks & How to Mitigate Them
+### 1. Environment Setup
+```bash
+cd spicy-fairytales
+cp .env.example .env                      # Copy environment template
+# Edit .env with your API keys OR set VITE_USE_MOCKS=true for development
+npm run validate                          # ALWAYS validate before proceeding
+```
 
--   **Risk: The Parser-Synthesizer Contract**: The most fragile part of our system is the implicit contract between the `SpeakerParser` and the `VoiceService`. The parser generates structured JSON (a `ParsedStory`), and the voice service consumes it. If the parser's output format changes even slightly (e.g., a property name changes), the voice synthesis will break.
-    -   **Mitigation**: Before modifying the `SpeakerParser`, check its usages in `voiceService.ts`. Always run tests that cover the full pipeline from text to audio.
--   **Risk: Cascading Failures**: A failure in `StoryService` will cascade down the entire pipeline.
-    -   **Mitigation**: Each service is responsible for its own error handling. The `use...` hooks must translate service-specific errors into a standardized format that the UI can display gracefully. Never let a raw API error bubble up to a React component.
+### 2. Development Mode
+```bash
+npm start                                 # Development server with hot reload
+# Open http://localhost:4200 in browser
+# Use mock services by default or configure real API keys
+```
 
-## 4. How to Avoid Technical Debt
+### 3. Code Quality
+```bash
+npx prettier --check src/                # Check code formatting
+npx prettier --write src/                # Fix formatting issues
+# Note: No ESLint configured - relies on TypeScript compiler and Prettier
+```
 
--   **Adhere to Contracts Religiously**: If you need a new piece of data, add it to the interface in `contracts.ts` first. This forces you to think about the data flow and prevents one-off "hacks".
--   **Test the Mocks**: Write tests that validate the behavior of your mock services. Does `MockSpeakerParser` return a `ParsedStory` that matches the contract? This ensures your tests are valid before you even touch a real API.
--   **Isolate Logic in Hooks and Services**: If you find yourself writing complex logic inside a `.tsx` file, stop. That logic belongs in a hook or a service. This keeps components reusable and easy to test.
+## Validation Requirements
 
-## 5. Key Commands
+**MANUAL VALIDATION SCENARIOS:**
+Always test these scenarios after making changes:
 
--   `npm start`: Starts the development server with Angular
--   `npm run build`: Creates a production-ready build
--   `npm test`: Runs unit tests with Karma
--   `npm run validate`: Validates environment and API keys
--   **Environment**: Set `VITE_USE_MOCKS=true` in `.env` for development
+1. **Basic Application Launch:**
+   ```bash
+   npm start
+   # Verify app loads at http://localhost:4200
+   # Check console for errors (some animation warnings are expected)
+   ```
 
-## 6. Current Implementation Status
+2. **Story Generation Flow:**
+   - Select character type (Werewolf/Vampire/Faerie)
+   - Choose themes and settings
+   - Click "Generate Story" or "API Test"
+   - Verify loading states and completion
 
-### ✅ Completed Features
-- **Mock-First Architecture**: All services have mock implementations for development
-- **Real API Integration**: HttpStoryService (Grok), GrokSpeakerParser, ElevenLabsVoiceService
-- **Angular 20**: Standalone components, signals, dependency injection
-- **CI/CD Pipeline**: GitHub Actions with testing, building, deployment
-- **Environment Management**: Validation scripts, API key configuration
-- **UI Components**: Story form, display, voice assignment, audio player, export
+3. **API Integration Test:**
+   ```bash
+   npm run test-apis
+   # Should complete in ~20 seconds
+   # Tests Grok and ElevenLabs APIs (may fail if keys not configured)
+   ```
 
-### 🔄 Current Configuration
-- **Default Mode**: Real APIs enabled (`env.useMocks = false`)
-- **Fallback**: Mock services available for development
-- **API Keys**: Configured in `.env` file with VITE_ prefix for Vite
+4. **Build Validation:**
+   ```bash
+   npm run build
+   # NEVER CANCEL: Takes ~20 seconds, generates dist/ folder
+   # Should complete without errors
+   ```
 
-### 🎯 Development Workflow
-1. **Development**: Use mocks (`VITE_USE_MOCKS=true`) to avoid API costs
-2. **Testing**: Switch to real APIs for integration testing
-3. **Production**: Real APIs with proper error handling and fallbacks
+## Architecture Overview
 
-## 7. API Integration Details
+The application is an Angular 20 standalone components app with this data pipeline:
 
-### Grok (x.ai)
-- **Service**: `HttpStoryService`
-- **Endpoint**: `https://api.x.ai/v1/chat/completions`
-- **Streaming**: Real-time story generation with Server-Sent Events
-- **Model**: `grok-beta`
+`StoryOptions` → **[StoryService]** → `Raw Story (string)` → **[SpeakerParser]** → `ParsedStory (JSON)` → **[VoiceService]** → `AudioChunks`
 
-### ElevenLabs
-- **Service**: `ElevenLabsVoiceService`
-- **Endpoint**: `https://api.elevenlabs.io/v1/text-to-speech/{voiceId}`
-- **Streaming**: Audio chunk generation
-- **Voices**: Pre-selected voice library with character assignment
+### Key Files and Directories:
+- `src/app/shared/contracts.ts` - **SINGLE SOURCE OF TRUTH** for all data interfaces
+- `src/app/services/` - Service implementations (HTTP, mocks, voice, parsing)
+- `src/app/pages/generate.page.ts` - Main story generation UI and logic
+- `src/app/stores/` - State management with Angular signals
+- `.env` - Environment configuration (copy from .env.example)
 
-### Speaker Parsing
-- **Service**: `GrokSpeakerParser`
-- **Method**: AI-powered dialogue detection and segmentation
-- **Output**: Structured JSON with narration/dialogue/action segments
+### Critical Integration Points:
+- **Parser-Voice Contract**: Changes to `SpeakerParser` output must match `VoiceService` input
+- **Mock-Real Service Switch**: Controlled by `VITE_USE_MOCKS` environment variable
+- **API Keys**: Required for Grok (x.ai) and ElevenLabs, stored in .env or browser localStorage
+
+## Development Guidelines
+
+### 1. Mock-First Development
+```bash
+# Always start with mocks for development
+echo "VITE_USE_MOCKS=true" >> .env
+npm start
+# Switch to real APIs only for integration testing
+```
+
+### 2. Before Making Changes
+- **Always** run `npm run validate` first
+- **Always** run existing tests: `npm test`
+- **Always** check contracts in `src/app/shared/contracts.ts`
+
+### 3. After Making Changes
+- **Always** test the complete user flow manually
+- **Always** run `npx prettier --check src/` (fix with --write)
+- **Always** verify build still works: `npm run build`
+
+## Environment Configuration
+
+### API Keys Setup:
+```bash
+# Method 1: Environment file (recommended for development)
+cp .env.example .env
+# Edit .env with your keys:
+# VITE_XAI_API_KEY=your_key_here
+# VITE_ELEVENLABS_API_KEY=your_key_here
+
+# Method 2: Browser-based (production)
+# Use the API Keys panel in the UI
+# Keys stored in browser localStorage
+```
+
+### Mock vs Real API Mode:
+```bash
+# Development (free, fast, no API costs)
+VITE_USE_MOCKS=true
+
+# Production/Testing (requires API keys)
+VITE_USE_MOCKS=false
+```
+
+## Common Commands Reference
+
+### Build Commands (CRITICAL TIMINGS)
+```bash
+npm run build                             # Production build: ~20 seconds, NEVER CANCEL, timeout 60+ seconds
+npm run build:github-pages                # GitHub Pages build: ~20 seconds, NEVER CANCEL, timeout 60+ seconds  
+npm run build:vercel                      # Vercel deployment build: ~20 seconds, NEVER CANCEL, timeout 60+ seconds
+npm run watch                             # Development watch build: continuous rebuilding
+```
+
+### Test Commands
+```bash
+npm test                                  # Unit tests: ~20 seconds, NEVER CANCEL, timeout 60+ seconds
+npm test -- --no-watch --no-progress --browsers=ChromeHeadlessNoSandbox  # CI mode
+```
+
+### Validation Commands
+```bash
+npm run validate                          # Environment validation: ~2 seconds
+npm run test-apis                         # API integration test: ~20 seconds (may fail without keys)
+```
+
+### Development Server
+```bash
+npm start                                 # Development server: http://localhost:4200, ~10 second startup
+npm run serve:ssr:spicy-fairytales       # SSR server (after build)
+```
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions with these key jobs:
+- **Test**: Runs unit tests with Chrome headless
+- **Build**: Creates production build artifacts
+- **Deploy**: GitHub Pages deployment (automatic on main branch)
+
+### Key CI Files:
+- `.github/workflows/ci-cd.yml` - Main CI pipeline
+- `.github/workflows/github-pages.yml` - GitHub Pages deployment
+- `.github/workflows/quality.yml` - Code quality checks
+
+## Troubleshooting
+
+### Common Issues:
+
+1. **npm install fails with puppeteer error:**
+   ```bash
+   PUPPETEER_SKIP_DOWNLOAD=true npm install
+   ```
+
+2. **Build fails with memory issues:**
+   ```bash
+   NODE_OPTIONS="--max-old-space-size=4096" npm run build
+   ```
+
+3. **Tests fail with Chrome not found:**
+   ```bash
+   # Install Chrome or use different browser in karma.conf.js
+   npm test -- --browsers=ChromeHeadlessNoSandbox
+   ```
+
+4. **API tests fail:**
+   ```bash
+   # Check API keys in .env or switch to mocks
+   echo "VITE_USE_MOCKS=true" >> .env
+   npm run test-apis
+   ```
+
+### Build Time Expectations:
+- **Fresh npm install**: 1-5 minutes (depending on network)
+- **Development build**: ~10 seconds
+- **Production build**: ~20 seconds
+- **Unit tests**: ~20 seconds
+- **API integration tests**: ~20 seconds
+
+**NEVER CANCEL BUILD OR TEST COMMANDS** - They may appear to hang but will complete. Always set timeouts of 60+ seconds for builds and 30+ seconds for tests.
+
+## Technology Stack
+
+- **Framework**: Angular 20 with standalone components
+- **Language**: TypeScript with strict mode
+- **Styling**: SCSS with responsive design
+- **State Management**: Angular signals
+- **Testing**: Karma + Jasmine
+- **Build Tool**: Angular CLI with Vite
+- **APIs**: Grok (x.ai) for story generation, ElevenLabs for voice synthesis
+- **Deployment**: GitHub Pages, Vercel support included
+
+## Development Philosophy
+
+1. **Correctness > Clarity > Cleverness**: Code must work, be readable, then optimized
+2. **Mock-First Development**: Always develop with mocks, test with real APIs
+3. **Contract-Driven Architecture**: All services must implement interfaces in `contracts.ts`
+4. **Fail Fast**: Catch errors early in the development pipeline
+5. **Manual Validation**: Always test user workflows after changes
